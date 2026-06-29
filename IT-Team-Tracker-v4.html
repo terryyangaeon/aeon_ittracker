@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IT Team Tracker Online</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-2:.5rem; --space-3:.75rem; --space-4:1rem; --space-5:1.25rem; --space-6:1.5rem; --space-8:2rem;
+      --color-bg:#f7f6f2; --color-surface:#f9f8f5; --color-surface-2:#fbfbf9; --color-surface-offset:#f3f0ec;
+      --color-border:#d4d1ca; --color-text:#28251d; --color-text-muted:#6c6a64; --color-text-inverse:#f9f8f4;
+      --color-primary:#01696f; --color-primary-hover:#0c4e54; --color-primary-highlight:#cedcd8;
+      --color-success:#437a22; --color-success-bg:#dcecd0;
+      --color-warning:#964219; --color-warning-bg:#f3d6c8;
+      --color-danger:#9b1c1c;  --color-danger-bg:#f7d1d1;
+      --color-info:#1c4f9b;    --color-info-bg:#d4def0;
+      --radius-md:.5rem; --radius-lg:.75rem; --radius-xl:1rem;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.05); --shadow-md:0 12px 32px rgba(0,0,0,.08);
+      --font-body:'Satoshi', Arial, sans-serif;
+    }
+    [data-theme="dark"] {
+      --color-bg:#171614; --color-surface:#1c1b19; --color-surface-2:#201f1d; --color-surface-offset:#1d1c1a;
+      --color-border:#393836; --color-text:#cdccca; --color-text-muted:#9f9d99; --color-text-inverse:#2b2a28;
+      --color-primary:#4f98a3; --color-primary-hover:#227f8b; --color-primary-highlight:#313b3b;
+      --color-success:#6daa45; --color-success-bg:#2a3a22;
+      --color-warning:#bb653b; --color-warning-bg:#3a2a20;
+      --color-danger:#d56b6b;  --color-danger-bg:#3a2222;
+      --color-info:#7aa6e3;    --color-info-bg:#1f2a3a;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.22); --shadow-md:0 12px 32px rgba(0,0,0,.32);
+    }
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+    body{font-family:var(--font-body);font-size:var(--text-base);line-height:1.55;color:var(--color-text);background:linear-gradient(180deg,var(--color-surface-2),var(--color-bg))}
+    button,input,textarea,select{font:inherit}
+    .app{max-width:1280px;margin:0 auto;padding:var(--space-6)}
+    .topbar{display:flex;justify-content:space-between;gap:var(--space-4);align-items:flex-start;flex-wrap:wrap;margin-bottom:var(--space-6)}
+    h1{margin:0 0 var(--space-2);font-size:var(--text-xl);line-height:1.1}
+    .muted{color:var(--color-text-muted)}
+    .actions{display:flex;gap:var(--space-3);flex-wrap:wrap;align-items:center}
+    .who{font-size:var(--text-sm);color:var(--color-text-muted)}
+    .who strong{color:var(--color-text)}
+    .btn{min-height:44px;padding:.78rem 1rem;border-radius:var(--radius-lg);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);cursor:pointer;box-shadow:var(--shadow-sm)}
+    .btn.primary{background:var(--color-primary);color:var(--color-text-inverse);border-color:transparent}
+    .btn.primary:hover{background:var(--color-primary-hover)}
+    .btn.warn{background:var(--color-surface-offset)}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .layout{display:grid;grid-template-columns:340px 1fr;gap:var(--space-6)}
+    .card{background:color-mix(in srgb,var(--color-surface) 90%,transparent);border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-md)}
+    .sidebar{padding:var(--space-5);position:sticky;top:var(--space-4);align-self:start}
+    .section{padding:var(--space-5)}
+    .stack{display:grid;gap:var(--space-4)}
+    .field{display:grid;gap:var(--space-2)}
+    .field label{font-size:var(--text-sm);font-weight:700}
+    .field input,.field select,.field textarea{width:100%;min-height:44px;padding:.8rem .9rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface-2);color:var(--color-text)}
+    .field textarea{min-height:90px;resize:vertical}
+    .helper{font-size:var(--text-xs);color:var(--color-text-muted)}
+    .badge{display:inline-flex;align-items:center;padding:.3rem .6rem;border-radius:999px;font-size:var(--text-xs);font-weight:700;background:var(--color-primary-highlight);color:var(--color-primary)}
+    .badge.green{background:var(--color-success-bg);color:var(--color-success)}
+    .badge.red{background:var(--color-danger-bg);color:var(--color-danger)}
+    .badge.amber{background:var(--color-warning-bg);color:var(--color-warning)}
+    .badge.blue{background:var(--color-info-bg);color:var(--color-info)}
+    .summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4)}
+    .metric{background:var(--color-surface-offset);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4)}
+    .metric .k{font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em}
+    .metric .v{font-size:var(--text-lg);font-weight:700;margin-top:var(--space-2)}
+    .site-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem;margin-top:var(--space-3)}
+    .site-chip{display:flex;align-items:center;justify-content:space-between;padding:.45rem .65rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface-2);font-size:var(--text-xs)}
+    .site-chip .dot{width:.55rem;height:.55rem;border-radius:999px;background:var(--color-border)}
+    .site-chip.covered{background:var(--color-success-bg);border-color:transparent;color:var(--color-success)}
+    .site-chip.covered .dot{background:var(--color-success)}
+    .records,.objective-list,.weekly-list{display:grid;gap:var(--space-4)}
+    .entry,.objective,.weekly{border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4);background:var(--color-surface-2)}
+    .entry-head,.objective-head,.weekly-head,.toolbar{display:flex;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap;align-items:flex-start}
+    .entry h3,.objective h3,.weekly h3{margin:0;font-size:var(--text-lg)}
+    .meta{color:var(--color-text-muted);font-size:var(--text-sm)}
+    .status{font-size:var(--text-sm)} .ok{color:var(--color-success)} .warn-text{color:var(--color-warning)}
+    .tabs{display:flex;gap:var(--space-3);flex-wrap:wrap}
+    .tab{min-height:40px;padding:.55rem .9rem;border-radius:999px;border:1px solid var(--color-border);background:var(--color-surface);cursor:pointer;font-size:var(--text-sm)}
+    .tab.active{background:var(--color-primary);color:var(--color-text-inverse);border-color:transparent}
+    .two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4)}
+    .three-col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-4)}
+    .empty{padding:var(--space-8);text-align:center;color:var(--color-text-muted);border:1px dashed var(--color-border);border-radius:var(--radius-lg)}
+    .main{display:grid;gap:var(--space-6)}
+    .obj-lines{white-space:pre-line}
+    .rules{background:var(--color-info-bg);color:var(--color-info);border:1px solid color-mix(in srgb,var(--color-info) 25%,transparent);border-radius:var(--radius-lg);padding:var(--space-4)}
+    .rules h4{margin:0 0 var(--space-2);font-size:var(--text-sm);text-transform:uppercase;letter-spacing:.06em}
+    .rules ul{margin:0;padding-left:1.1rem}
+    .rules li{font-size:var(--text-sm)}
+    .sub-tabs{display:flex;gap:var(--space-2);flex-wrap:wrap;margin-bottom:var(--space-4)}
+    .sub-tab{min-height:38px;padding:.45rem .85rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);cursor:pointer;font-size:var(--text-sm)}
+    .sub-tab.active{background:var(--color-primary);color:var(--color-text-inverse);border-color:transparent}
+    .form-pane{display:none}
+    .form-pane.active{display:grid;gap:var(--space-3)}
+    .weekly .ppp-block{margin-top:var(--space-3)}
+    .weekly .ppp-block strong{display:block;font-size:var(--text-sm);margin-bottom:.25rem}
+    .login{padding:var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-2);display:grid;gap:var(--space-2)}
+    @media (max-width:980px){.layout,.summary,.two-col,.three-col{grid-template-columns:1fr}.sidebar{position:static}.app{padding:var(--space-4)}.summary{grid-template-columns:repeat(2,1fr)}}
+    /* Print styles for Monday consolidated report */
+    @media print {
+      body{background:#fff}
+      .app{max-width:100%;padding:0}
+      .sidebar,.topbar .actions,.tabs,.sub-tabs,.rules,#dailyEntrySection,#objectivesSection,#dailyRecordsSection,#weeklyCardsSection,#dashboardSection,.no-print{display:none !important}
+      .layout{grid-template-columns:1fr}
+      .card{box-shadow:none;border-color:#bbb}
+      .weekly{break-inside:avoid;page-break-inside:avoid}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div style="background:#dcecd0;color:#437a22;padding:.5rem 1rem;border-radius:.5rem;font-weight:700;margin-bottom:1rem;text-align:center">Version 4 · If you can see this banner, you have the latest file.</div>
+    <div class="topbar">
+      <div>
+        <h1>IT Team Tracker Online <span style="font-size:.7em;color:#6c6a64">v4</span></h1>
+        <p class="muted">Daily attendance log, weekly PPP status reports, and revisable monthly objectives.</p>
+      </div>
+      <div class="actions">
+        <span class="who" id="whoLabel">Not signed in</span>
+        <button class="btn" id="signOutBtn" style="display:none">Sign out</button>
+        <button class="btn" id="themeToggle">Dark mode</button>
+        <button class="btn" id="refreshBtn">Refresh</button>
+      </div>
+    </div>
+
+    <div class="rules" style="margin-bottom:var(--space-6)">
+      <h4>Team expectations</h4>
+      <ul>
+        <li>Each team member logs their own daily whereabouts and work for each working day.</li>
+        <li>Each team member submits their own Weekly PPP status report (Progress / Plans / Problems) by Friday 17:30 HKT.</li>
+        <li>Flag any Problems clearly so blockers can be resolved early.</li>
+        <li>Philip reviews the consolidated Weekly PPP every Monday morning.</li>
+      </ul>
+    </div>
+
+    <div class="layout">
+      <aside class="card sidebar">
+        <div class="stack">
+
+          <!-- SIGN-IN BLOCK -->
+          <div id="signInBlock" class="login">
+            <div class="badge">Sign in</div>
+            <div class="field">
+              <label for="loginMember">I am</label>
+              <select id="loginMember">
+                <option value="">— select your name —</option>
+                <option>Jimmy</option><option>James</option><option>Riot</option><option>Terry</option><option>Timothy</option>
+                <option>Philip (Reviewer)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="loginPin">PIN</label>
+              <input id="loginPin" type="password" inputmode="numeric" maxlength="8" placeholder="Enter your PIN">
+              <div class="helper">First-time default PIN for all members is <strong>1111</strong>. Philip's default PIN is <strong>9999</strong>. Use "Change PIN" after signing in.</div>
+            </div>
+            <button class="btn primary" id="signInBtn">Sign in</button>
+            <div class="status muted" id="signInStatus"></div>
+          </div>
+
+          <!-- API URL -->
+          <div class="field">
+            <label for="apiUrl">Online API URL</label>
+            <input id="apiUrl" type="url" placeholder="https://your-server-url/api">
+            <div class="helper">Paste your deployed online API URL so all members share one live database.</div>
+          </div>
+
+          <!-- PIN MANAGEMENT (visible when signed in) -->
+          <div id="pinBlock" style="display:none">
+            <button class="btn" id="changePinBtn" style="width:100%">Change my PIN</button>
+          </div>
+
+          <!-- ENTRY FORMS (locked until sign-in) -->
+          <div class="sub-tabs">
+            <button class="sub-tab active" data-form="daily">Daily entry</button>
+            <button class="sub-tab" data-form="weekly">Weekly PPP</button>
+          </div>
+
+          <!-- DAILY FORM -->
+          <div class="form-pane active" id="form-daily">
+            <div class="field">
+              <label for="date">Date</label>
+              <input id="date" type="date">
+            </div>
+            <div class="field">
+              <label for="site">Whereabouts / site</label>
+              <select id="site"><option>MC6</option><option>PWH</option><option>KWH</option><option>UCH</option><option>CHT</option><option>SMT</option><option>TKO</option><option>Remote to be specified</option></select>
+            </div>
+            <div class="field">
+              <label for="tasks">Work completed today</label>
+              <textarea id="tasks" placeholder="Daily work completed"></textarea>
+            </div>
+            <div class="field">
+              <label for="deliverables">Deliverables / outcomes</label>
+              <textarea id="deliverables" placeholder="What was completed or achieved today?"></textarea>
+            </div>
+            <button class="btn primary" id="submitBtn" disabled>Submit daily entry</button>
+          </div>
+
+          <!-- WEEKLY PPP FORM -->
+          <div class="form-pane" id="form-weekly">
+            <div class="field">
+              <label for="wWeekEnding">Week ending (Friday)</label>
+              <input id="wWeekEnding" type="date">
+              <div class="helper">Defaults to this week's Friday.</div>
+            </div>
+            <div class="field">
+              <label for="wProgress">Progress — what did you complete this week?</label>
+              <textarea id="wProgress" placeholder="Accomplishments and finished items"></textarea>
+            </div>
+            <div class="field">
+              <label for="wPlans">Plans — what will you focus on next week?</label>
+              <textarea id="wPlans" placeholder="Goals and priorities for next week"></textarea>
+            </div>
+            <div class="field">
+              <label for="wProblems">Problems — what is blocked or needs help?</label>
+              <textarea id="wProblems" placeholder="Blockers, risks, requests for help (leave empty if none)"></textarea>
+            </div>
+            <button class="btn primary" id="submitWeeklyBtn" disabled>Submit weekly PPP</button>
+          </div>
+
+          <div class="status muted" id="formStatus">Sign in to submit entries.</div>
+        </div>
+      </aside>
+
+      <main class="main">
+
+        <!-- DASHBOARD -->
+        <section class="card section" id="dashboardSection">
+          <div class="entry-head" style="margin-bottom:var(--space-3)">
+            <div>
+              <h3 style="margin:0">This week's dashboard</h3>
+              <div class="meta" id="weekLabel">—</div>
+            </div>
+            <div class="field" style="min-width:220px">
+              <label for="dashWeekEnding">Show week ending (Friday)</label>
+              <input id="dashWeekEnding" type="date">
+            </div>
+          </div>
+          <div class="summary">
+            <div class="metric"><div class="k">Submitted this week</div><div class="v" id="mSubmitted">0</div></div>
+            <div class="metric"><div class="k">Outstanding this week</div><div class="v" id="mOutstanding">0</div></div>
+            <div class="metric"><div class="k">Members with blockers</div><div class="v" id="mBlocked">0</div></div>
+            <div class="metric"><div class="k">Daily entries this week</div><div class="v" id="mDaily">0</div></div>
+          </div>
+          <div>
+            <div class="meta" style="margin-top:var(--space-4);font-weight:700">Site coverage this week</div>
+            <div class="site-grid" id="siteCoverage"></div>
+          </div>
+        </section>
+
+        <!-- MONDAY CONSOLIDATED REPORT (single report, all members) -->
+        <section class="card section" id="mondayReportSection">
+          <div class="entry-head">
+            <div>
+              <h3 style="margin:0">Monday consolidated Weekly PPP report</h3>
+              <div class="meta" id="mondayReportSubtitle">One single report for Philip's review — all members for the week ending Friday.</div>
+            </div>
+            <div class="actions no-print">
+              <button class="btn" id="printReportBtn">Print / Save as PDF</button>
+            </div>
+          </div>
+          <div id="mondayReport" style="margin-top:var(--space-4)"></div>
+        </section>
+
+        <!-- WEEKLY PPP CARDS (per member, working area) -->
+        <section class="card section" id="weeklyCardsSection">
+          <div class="entry-head">
+            <div>
+              <h3>Weekly PPP cards (working view)</h3>
+              <div class="meta">One card per member for the selected week, with status badge.</div>
+            </div>
+            <div class="tabs">
+              <button class="tab active" data-wfilter="">All members</button>
+              <button class="tab" data-wfilter="Jimmy">Jimmy</button>
+              <button class="tab" data-wfilter="James">James</button>
+              <button class="tab" data-wfilter="Riot">Riot</button>
+              <button class="tab" data-wfilter="Terry">Terry</button>
+              <button class="tab" data-wfilter="Timothy">Timothy</button>
+            </div>
+          </div>
+          <div class="weekly-list" id="weeklyList" style="margin-top:var(--space-4)"></div>
+        </section>
+
+        <!-- MONTHLY OBJECTIVES -->
+        <section class="card section" id="objectivesSection">
+          <div class="objective-head">
+            <div>
+              <h3>Key monthly objectives</h3>
+              <div class="meta">One box per IT staff per month, up to 5 lines. View is strictly filtered by the selected month — no carryover.</div>
+            </div>
+            <div>
+              <button class="btn" id="resetJulyBtn">Reset July 2026 examples</button>
+            </div>
+          </div>
+          <div class="toolbar" style="margin:1rem 0;">
+            <div class="field" style="min-width:180px;flex:1;">
+              <label for="objectiveMonth">Month</label>
+              <select id="objectiveMonth"></select>
+            </div>
+            <div class="field" style="min-width:320px;flex:3;">
+              <label for="objectiveText">Objectives (up to 5 lines)</label>
+              <textarea id="objectiveText" placeholder="Enter one objective per line, up to 5 lines"></textarea>
+              <div class="helper">August 2026 onwards are intentionally blank — each member adds their own after agreement with Philip.</div>
+            </div>
+            <div style="display:flex;align-items:end;">
+              <button class="btn primary" id="saveObjectiveBtn" disabled>Save objective box</button>
+            </div>
+          </div>
+          <div class="objective-list" id="objectiveList"></div>
+        </section>
+
+        <!-- LIVE DAILY RECORDS -->
+        <section class="card section" id="dailyRecordsSection">
+          <div class="entry-head">
+            <div>
+              <h3>Live daily records</h3>
+              <div class="meta">All users see shared live daily entries once the online API is connected.</div>
+            </div>
+            <div class="tabs">
+              <button class="tab active" data-filter="">All</button>
+              <button class="tab" data-filter="Jimmy">Jimmy</button>
+              <button class="tab" data-filter="James">James</button>
+              <button class="tab" data-filter="Riot">Riot</button>
+              <button class="tab" data-filter="Terry">Terry</button>
+              <button class="tab" data-filter="Timothy">Timothy</button>
+            </div>
+          </div>
+          <div class="summary" style="margin-top:var(--space-4);grid-template-columns:repeat(3,1fr)">
+            <div class="metric"><div class="k">Live records</div><div class="v" id="totalRecords">0</div></div>
+            <div class="metric"><div class="k">Latest date</div><div class="v" id="latestDate">—</div></div>
+            <div class="metric"><div class="k">Members reporting</div><div class="v" id="membersReporting">0</div></div>
+          </div>
+          <div class="records" id="records" style="margin-top:var(--space-4)"></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // ===== Config =====
+    const MEMBERS = ['Jimmy','James','Riot','Terry','Timothy'];
+    const REVIEWER = 'Philip (Reviewer)';
+    const SITES = ['MC6','PWH','KWH','UCH','CHT','SMT','TKO'];
+    const months = ['July 2026','August 2026','September 2026','October 2026','November 2026','December 2026','January 2027','February 2027','March 2027','April 2027','May 2027','June 2027'];
+
+    // July 2026 seed objectives — one box per person. August 2026 onwards intentionally blank.
+    const seedObjectives = [
+      { member:'Jimmy',   month:'July 2026', text:'Develop MC6 Unified Network\nPWH POC for Meal Card Delivery platform\nAttendance & Job Dispatch platform' },
+      { member:'James',   month:'July 2026', text:'PWH Human Robot Integration platform\nTD ACRS Upgrade (iTimex Replacement)' },
+      { member:'Terry',   month:'July 2026', text:'PWH IoT Management platform (Live)' },
+      { member:'Timothy', month:'July 2026', text:'HA CMMS Demo with Data to showcase' },
+      { member:'Riot',    month:'July 2026', text:'HA CMMS Purchase Orders & QPOMS Implementation' }
+    ];
+
+    // Default PINs — each user should change after first sign-in.
+    const DEFAULT_PINS = {
+      'Jimmy':'1111', 'James':'1111', 'Riot':'1111', 'Terry':'1111', 'Timothy':'1111',
+      'Philip (Reviewer)':'9999'
+    };
+
+    const state = {
+      filter:'', wfilter:'', records:[], objectives:[], weekly:[],
+      editingObjectiveId:null, currentWeekEnding:'',
+      activeForm:'daily',
+      currentUser: null,         // who is signed in (string)
+      isReviewer: false          // true if Philip
+    };
+
+    const today = new Date().toISOString().slice(0,10);
+
+    // ===== Element refs =====
+    const els = {
+      apiUrl: byId('apiUrl'),
+      date: byId('date'), site: byId('site'),
+      tasks: byId('tasks'), deliverables: byId('deliverables'),
+      submitBtn: byId('submitBtn'), formStatus: byId('formStatus'),
+      totalRecords: byId('totalRecords'), latestDate: byId('latestDate'), membersReporting: byId('membersReporting'),
+      records: byId('records'), refreshBtn: byId('refreshBtn'), themeToggle: byId('themeToggle'),
+
+      objectiveText: byId('objectiveText'),
+      objectiveMonth: byId('objectiveMonth'), saveObjectiveBtn: byId('saveObjectiveBtn'),
+      objectiveList: byId('objectiveList'),
+      resetJulyBtn: byId('resetJulyBtn'),
+
+      wWeekEnding: byId('wWeekEnding'),
+      wProgress: byId('wProgress'), wPlans: byId('wPlans'), wProblems: byId('wProblems'),
+      submitWeeklyBtn: byId('submitWeeklyBtn'),
+      weeklyList: byId('weeklyList'), weekLabel: byId('weekLabel'),
+      mSubmitted: byId('mSubmitted'), mOutstanding: byId('mOutstanding'),
+      mBlocked: byId('mBlocked'), mDaily: byId('mDaily'),
+      siteCoverage: byId('siteCoverage'),
+      dashWeekEnding: byId('dashWeekEnding'),
+
+      mondayReport: byId('mondayReport'),
+      mondayReportSubtitle: byId('mondayReportSubtitle'),
+      printReportBtn: byId('printReportBtn'),
+
+      // Sign-in
+      signInBlock: byId('signInBlock'),
+      loginMember: byId('loginMember'),
+      loginPin: byId('loginPin'),
+      signInBtn: byId('signInBtn'),
+      signInStatus: byId('signInStatus'),
+      whoLabel: byId('whoLabel'),
+      signOutBtn: byId('signOutBtn'),
+      pinBlock: byId('pinBlock'),
+      changePinBtn: byId('changePinBtn')
+    };
+    function byId(id){return document.getElementById(id)}
+
+    // Initial values
+    els.date.value = today;
+    state.currentWeekEnding = nearestFriday(new Date());
+    els.wWeekEnding.value = state.currentWeekEnding;
+    els.dashWeekEnding.value = state.currentWeekEnding;
+    els.objectiveMonth.innerHTML = months.map(m => `<option>${m}</option>`).join('');
+    els.weekLabel.textContent = 'Week ending ' + state.currentWeekEnding;
+    els.mondayReportSubtitle.textContent = 'All members — week ending ' + state.currentWeekEnding;
+
+    // Theme
+    const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    els.themeToggle.textContent = prefersDark ? 'Light mode' : 'Dark mode';
+    els.themeToggle.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      els.themeToggle.textContent = next === 'dark' ? 'Light mode' : 'Dark mode';
+    });
+
+    // Persisted API URL
+    els.apiUrl.value = localStorage.getItem('apiUrl') || '';
+    els.apiUrl.addEventListener('input', () => localStorage.setItem('apiUrl', els.apiUrl.value));
+
+    // ===== Helpers =====
+    function escapeHtml(str=''){return String(str).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+    function normalizeObjectiveText(text) { return text.split('\n').map(s => s.trim()).filter(Boolean).slice(0,5).join('\n'); }
+    function nearestFriday(d) {
+      const dt = new Date(d);
+      const day = dt.getDay();
+      const delta = day === 0 ? -2 : 5 - day;
+      dt.setDate(dt.getDate() + delta);
+      return dt.toISOString().slice(0,10);
+    }
+    function weekRangeForFriday(fridayStr) {
+      const fri = new Date(fridayStr);
+      const mon = new Date(fri); mon.setDate(fri.getDate() - 4);
+      const sun = new Date(fri); sun.setDate(fri.getDate() + 2);
+      const fmt = d => d.toISOString().slice(0,10);
+      return { start: fmt(mon), end: fmt(sun) };
+    }
+    function inThisWeek(dateStr, fridayStr) {
+      const { start, end } = weekRangeForFriday(fridayStr);
+      return dateStr >= start && dateStr <= end;
+    }
+
+    // ===== Auth (PIN-based, local) =====
+    function loadPins() {
+      try { return { ...DEFAULT_PINS, ...JSON.parse(localStorage.getItem('pins_v1') || '{}') }; }
+      catch { return { ...DEFAULT_PINS }; }
+    }
+    function savePins(map) { localStorage.setItem('pins_v1', JSON.stringify(map)); }
+    function restoreSession() {
+      const name = localStorage.getItem('currentUser');
+      if (name && (MEMBERS.includes(name) || name === REVIEWER)) applySignIn(name);
+    }
+    function applySignIn(name) {
+      state.currentUser = name;
+      state.isReviewer = (name === REVIEWER);
+      els.signInBlock.style.display = 'none';
+      els.signOutBtn.style.display = '';
+      els.pinBlock.style.display = '';
+      els.whoLabel.innerHTML = 'Signed in as <strong>' + escapeHtml(name) + '</strong>' + (state.isReviewer ? ' · Reviewer' : '');
+      // Lock entry forms to this user (reviewer cannot submit entries)
+      const canSubmitEntries = !state.isReviewer;
+      els.submitBtn.disabled = !canSubmitEntries;
+      els.submitWeeklyBtn.disabled = !canSubmitEntries;
+      els.saveObjectiveBtn.disabled = !canSubmitEntries;
+      els.formStatus.textContent = state.isReviewer
+        ? 'Reviewer mode — read-only entries; full visibility of all reports.'
+        : 'Signed in. You can submit your own daily and weekly entries.';
+      localStorage.setItem('currentUser', name);
+      renderAll();
+    }
+    function signOut() {
+      state.currentUser = null; state.isReviewer = false;
+      localStorage.removeItem('currentUser');
+      els.signInBlock.style.display = '';
+      els.signOutBtn.style.display = 'none';
+      els.pinBlock.style.display = 'none';
+      els.whoLabel.textContent = 'Not signed in';
+      els.submitBtn.disabled = true; els.submitWeeklyBtn.disabled = true; els.saveObjectiveBtn.disabled = true;
+      els.formStatus.textContent = 'Sign in to submit entries.';
+      renderAll();
+    }
+    els.signInBtn.addEventListener('click', () => {
+      const name = els.loginMember.value;
+      const pin = els.loginPin.value.trim();
+      if (!name) { els.signInStatus.textContent = 'Please select your name.'; return; }
+      if (!pin)  { els.signInStatus.textContent = 'Please enter your PIN.'; return; }
+      const pins = loadPins();
+      if (pins[name] !== pin) { els.signInStatus.innerHTML = '<span class="warn-text">Incorrect PIN.</span>'; return; }
+      els.signInStatus.textContent = '';
+      els.loginPin.value = '';
+      applySignIn(name);
+    });
+    els.signOutBtn.addEventListener('click', signOut);
+    els.changePinBtn.addEventListener('click', () => {
+      if (!state.currentUser) return;
+      const cur = prompt('Enter your current PIN:');
+      if (cur === null) return;
+      const pins = loadPins();
+      if (pins[state.currentUser] !== cur) { alert('Current PIN is incorrect.'); return; }
+      const next = prompt('Enter your new PIN (4–8 digits):');
+      if (!next || !/^\d{4,8}$/.test(next)) { alert('PIN must be 4–8 digits.'); return; }
+      const confirmPin = prompt('Re-enter your new PIN:');
+      if (next !== confirmPin) { alert('PINs do not match.'); return; }
+      pins[state.currentUser] = next;
+      savePins(pins);
+      alert('PIN updated.');
+    });
+
+    // ===== API with localStorage fallback for /weekly =====
+    async function api(path, options={}) {
+      const base = els.apiUrl.value.trim().replace(/\/$/, '');
+      if (!base) throw new Error('Please enter the online API URL first.');
+      const res = await fetch(base + path, { headers:{'Content-Type':'application/json'}, ...options });
+      if (!res.ok) throw new Error('API error: ' + res.status);
+      return await res.json();
+    }
+    const LS_WEEKLY = 'weeklyPPP_v1';
+    function loadLocalWeekly(){ try { return JSON.parse(localStorage.getItem(LS_WEEKLY) || '[]'); } catch { return []; } }
+    function saveLocalWeekly(arr){ localStorage.setItem(LS_WEEKLY, JSON.stringify(arr)); }
+    async function fetchWeekly() {
+      try { const data = await api('/weekly'); return data.weekly || []; }
+      catch { return loadLocalWeekly(); }
+    }
+    async function saveWeekly(record) {
+      try {
+        await api('/weekly', { method:'POST', body: JSON.stringify(record) });
+      } catch {
+        const arr = loadLocalWeekly();
+        const idx = arr.findIndex(w => w.member === record.member && w.weekEnding === record.weekEnding);
+        const stamped = { ...record, lastUpdatedAt: new Date().toISOString(), id: (idx>=0 ? arr[idx].id : 'local-'+Date.now()) };
+        if (idx >= 0) arr[idx] = stamped; else arr.push(stamped);
+        saveLocalWeekly(arr);
+      }
+    }
+
+    // ===== Renderers =====
+    function renderObjectives() {
+      const selectedMonth = els.objectiveMonth.value || months[0];
+
+      // GUARANTEE: when viewing July 2026, always show a card for every member, falling back to the seed text if no real entry exists.
+      let list;
+      if (selectedMonth === 'July 2026') {
+        const seedByMember = new Map(seedObjectives.map(s => [s.member, s]));
+        const existingByMember = new Map(
+          state.objectives.filter(o => o.month === 'July 2026' && (o.text || '').trim()).map(o => [o.member, o])
+        );
+        list = MEMBERS.map(m => {
+          const existing = existingByMember.get(m);
+          if (existing) return existing;
+          const seed = seedByMember.get(m);
+          return seed ? { id: 'seed-' + m, ...seed } : null;
+        }).filter(Boolean);
+      } else {
+        list = state.objectives.filter(o => o.month === selectedMonth)
+                               .sort((a,b) => MEMBERS.indexOf(a.member) - MEMBERS.indexOf(b.member));
+      }
+
+      if (!list.length) {
+        els.objectiveList.innerHTML = `<div class="empty">No objectives saved for ${escapeHtml(selectedMonth)} yet.</div>`;
+        return;
+      }
+      els.objectiveList.innerHTML = list.map(o => {
+        const canEdit = state.currentUser === o.member;
+        const editBtns = canEdit
+          ? `<button class="btn" onclick="startReviseObjective('${o.id}')">Revise</button>
+             <button class="btn warn" onclick="deleteObjective('${o.id}')">Delete</button>`
+          : `<span class="badge">Read-only</span>`;
+        return `
+          <article class="objective">
+            <div class="objective-head">
+              <div>
+                <h3>${escapeHtml(o.member)}</h3>
+                <div class="meta">${escapeHtml(o.month)}</div>
+              </div>
+              <div style="display:flex; gap:.5rem; flex-wrap:wrap;">${editBtns}</div>
+            </div>
+            <div class="obj-lines">${escapeHtml(o.text)}</div>
+          </article>`;
+      }).join('');
+    }
+
+    function renderRecords() {
+      const rows = state.filter ? state.records.filter(r => r.member === state.filter) : state.records;
+      els.totalRecords.textContent = String(state.records.length);
+      els.latestDate.textContent = state.records.length ? state.records[0].date : '—';
+      els.membersReporting.textContent = String(new Set(state.records.map(r => r.member)).size);
+      if (!rows.length) { els.records.innerHTML = '<div class="empty">No records loaded yet.</div>'; return; }
+      els.records.innerHTML = rows.map(r => `
+        <article class="entry">
+          <div class="entry-head">
+            <div>
+              <h3>${escapeHtml(r.member)}</h3>
+              <div class="meta">${escapeHtml(r.date)} · ${escapeHtml(r.site || '')}</div>
+            </div>
+          </div>
+          <div class="two-col">
+            <div><div class="meta"><strong>Work completed today</strong></div><div>${escapeHtml(r.tasks || '—').replace(/\n/g,'<br>')}</div></div>
+            <div><div class="meta"><strong>Deliverables / outcomes</strong></div><div>${escapeHtml(r.deliverables || '—').replace(/\n/g,'<br>')}</div></div>
+          </div>
+        </article>`).join('');
+    }
+
+    function statusForWeekly(w) {
+      const submitted = !!(w && (w.progress || w.plans));
+      const blocked = !!(w && w.problems && w.problems.trim());
+      if (!submitted) return { label:'Outstanding', cls:'red' };
+      if (blocked) return { label:'Blocked', cls:'red' };
+      return { label:'Submitted', cls:'green' };
+    }
+
+    function renderWeekly() {
+      const fri = state.currentWeekEnding;
+      els.weekLabel.textContent = 'Week ending ' + fri;
+      els.mondayReportSubtitle.textContent = 'All members — week ending ' + fri;
+
+      const cards = MEMBERS.map(m => {
+        const w = state.weekly.find(x => x.member === m && x.weekEnding === fri);
+        return { member: m, weekEnding: fri, record: w };
+      });
+
+      // Dashboard counts
+      let submitted = 0, outstanding = 0, blocked = 0;
+      cards.forEach(c => {
+        const s = statusForWeekly(c.record);
+        if (s.label === 'Submitted') submitted++;
+        else if (s.label === 'Blocked') { submitted++; blocked++; }
+        else outstanding++;
+      });
+      els.mSubmitted.textContent = submitted;
+      els.mOutstanding.textContent = outstanding;
+      els.mBlocked.textContent = blocked;
+
+      // Daily entries + site coverage
+      const dailyThisWeek = state.records.filter(r => inThisWeek(r.date, fri));
+      els.mDaily.textContent = dailyThisWeek.length;
+      const coveredSites = new Set(dailyThisWeek.map(r => r.site));
+      els.siteCoverage.innerHTML = SITES.map(s => {
+        const covered = coveredSites.has(s);
+        return `<div class="site-chip ${covered ? 'covered' : ''}"><span>${s}</span><span class="dot"></span></div>`;
+      }).join('');
+
+      // Per-member cards (working view)
+      const visible = state.wfilter ? cards.filter(c => c.member === state.wfilter) : cards;
+      if (!visible.length) {
+        els.weeklyList.innerHTML = '<div class="empty">No weekly cards to show.</div>';
+      } else {
+        els.weeklyList.innerHTML = visible.map(c => {
+          const s = statusForWeekly(c.record);
+          const r = c.record || {};
+          const blockedBadge = (s.label === 'Submitted' && r.problems && r.problems.trim())
+            ? '<span class="badge red" style="margin-left:.4rem">Blocked</span>' : '';
+          const lastUpd = r.lastUpdatedAt ? new Date(r.lastUpdatedAt).toLocaleString() : '—';
+          const canEdit = state.currentUser === c.member;
+          const editBtn = canEdit
+            ? `<button class="btn" onclick="prefillWeekly('${escapeHtml(c.member)}','${escapeHtml(c.weekEnding)}')">Edit / Submit</button>`
+            : `<span class="badge">Read-only</span>`;
+          return `
+            <article class="weekly">
+              <div class="weekly-head">
+                <div>
+                  <h3>${escapeHtml(c.member)} <span class="badge ${s.cls}">${s.label}</span>${blockedBadge}</h3>
+                  <div class="meta">Week ending ${escapeHtml(c.weekEnding)} · Last updated ${escapeHtml(lastUpd)}</div>
+                </div>
+                <div>${editBtn}</div>
+              </div>
+              ${r.progress || r.plans || r.problems ? `
+                <div class="three-col" style="margin-top:var(--space-3)">
+                  <div class="ppp-block"><strong>Progress</strong><div>${escapeHtml(r.progress || '—').replace(/\n/g,'<br>')}</div></div>
+                  <div class="ppp-block"><strong>Plans</strong><div>${escapeHtml(r.plans || '—').replace(/\n/g,'<br>')}</div></div>
+                  <div class="ppp-block"><strong>Problems</strong><div>${escapeHtml(r.problems || '—').replace(/\n/g,'<br>')}</div></div>
+                </div>` : `<div class="meta" style="margin-top:var(--space-3)">No weekly PPP submitted yet.</div>`}
+            </article>`;
+        }).join('');
+      }
+
+      renderMondayReport(cards);
+    }
+
+    function renderMondayReport(cards) {
+      // Consolidated single report — Progress / Plans / Problems for all members
+      const fri = state.currentWeekEnding;
+      const generated = new Date().toLocaleString();
+      const headerBlock = `
+        <div style="margin-bottom:var(--space-4)">
+          <div style="font-weight:700">IT Team — Weekly PPP Consolidated Report</div>
+          <div class="meta">Week ending ${escapeHtml(fri)} · Generated ${escapeHtml(generated)}</div>
+        </div>`;
+
+      // Summary line
+      let submitted = 0, outstanding = 0, blocked = 0;
+      cards.forEach(c => {
+        const s = statusForWeekly(c.record);
+        if (s.label === 'Submitted') submitted++;
+        else if (s.label === 'Blocked') { submitted++; blocked++; }
+        else outstanding++;
+      });
+      const summary = `
+        <div style="margin-bottom:var(--space-4)">
+          <span class="badge green">Submitted: ${submitted}</span>
+          <span class="badge red" style="margin-left:.4rem">Outstanding: ${outstanding}</span>
+          <span class="badge red" style="margin-left:.4rem">Blocked: ${blocked}</span>
+        </div>`;
+
+      const sections = cards.map(c => {
+        const s = statusForWeekly(c.record);
+        const r = c.record || {};
+        const blockedBadge = (s.label === 'Submitted' && r.problems && r.problems.trim())
+          ? '<span class="badge red" style="margin-left:.4rem">Blocked</span>' : '';
+        return `
+          <article class="weekly" style="margin-bottom:var(--space-4)">
+            <div class="weekly-head">
+              <div>
+                <h3>${escapeHtml(c.member)} <span class="badge ${s.cls}">${s.label}</span>${blockedBadge}</h3>
+                <div class="meta">Week ending ${escapeHtml(c.weekEnding)}</div>
+              </div>
+            </div>
+            <div class="three-col" style="margin-top:var(--space-3)">
+              <div class="ppp-block"><strong>Progress</strong><div>${escapeHtml(r.progress || '—').replace(/\n/g,'<br>')}</div></div>
+              <div class="ppp-block"><strong>Plans</strong><div>${escapeHtml(r.plans || '—').replace(/\n/g,'<br>')}</div></div>
+              <div class="ppp-block"><strong>Problems</strong><div>${escapeHtml(r.problems || '—').replace(/\n/g,'<br>')}</div></div>
+            </div>
+          </article>`;
+      }).join('');
+
+      els.mondayReport.innerHTML = headerBlock + summary + sections;
+    }
+
+    function renderAll() { renderRecords(); renderObjectives(); renderWeekly(); }
+
+    // ===== Actions =====
+    async function loadAll() {
+      try {
+        els.formStatus.textContent = 'Loading live data...';
+        const [recordsData, objectivesData] = await Promise.all([ api('/records'), api('/objectives') ]);
+        state.records = (recordsData.records || []).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+        // Merge server objectives with seeds, preferring server entries by (member, month)
+        const server = objectivesData.objectives || [];
+        // Always keep July 2026 seed examples visible as a baseline. Server entries with non-empty text override seeds; empty server rows do not erase them.
+        const julySeeds = seedObjectives.filter(o => o.month === 'July 2026').map((o, i) => ({ id: 'seed-' + i, ...o }));
+        const serverNonJuly = server.filter(s => s.month !== 'July 2026');
+        const serverJulyByMember = new Map(server.filter(s => s.month === 'July 2026' && (s.text || '').trim()).map(s => [s.member, s]));
+        const mergedJuly = julySeeds.map(seed => serverJulyByMember.get(seed.member) || seed);
+        state.objectives = [...serverNonJuly, ...mergedJuly];
+        state.weekly = await fetchWeekly();
+        renderAll();
+        const note = state.currentUser ? '' : ' Sign in to submit entries.';
+        els.formStatus.innerHTML = '<span class="ok">Live data loaded.</span>' + note;
+      } catch (err) {
+        state.weekly = loadLocalWeekly();
+        renderAll();
+        els.formStatus.textContent = err.message;
+      }
+    }
+
+    async function submitRecord() {
+      try {
+        if (!state.currentUser || state.isReviewer) throw new Error('Sign in as a team member to submit.');
+        const payload = {
+          member: state.currentUser,
+          date: els.date.value,
+          site: els.site.value,
+          tasks: els.tasks.value.trim(),
+          deliverables: els.deliverables.value.trim(),
+          submittedBy: state.currentUser
+        };
+        if (!payload.date) throw new Error('Date is required.');
+        els.formStatus.textContent = 'Submitting...';
+        await api('/records', { method:'POST', body: JSON.stringify(payload) });
+        els.tasks.value = ''; els.deliverables.value = ''; els.date.value = today;
+        els.formStatus.innerHTML = '<span class="ok">Daily entry submitted.</span>';
+        await loadAll();
+      } catch (err) { els.formStatus.textContent = err.message; }
+    }
+
+    async function submitWeekly() {
+      try {
+        if (!state.currentUser || state.isReviewer) throw new Error('Sign in as a team member to submit.');
+        const weekEnding = els.wWeekEnding.value || nearestFriday(new Date());
+        const payload = {
+          member: state.currentUser,
+          weekEnding,
+          progress: els.wProgress.value.trim(),
+          plans: els.wPlans.value.trim(),
+          problems: els.wProblems.value.trim(),
+          status: 'Submitted',
+          blockersFlag: !!els.wProblems.value.trim()
+        };
+        if (!payload.progress && !payload.plans) throw new Error('Please fill in at least Progress or Plans.');
+        els.formStatus.textContent = 'Submitting weekly PPP...';
+        await saveWeekly(payload);
+        state.weekly = await fetchWeekly();
+        els.wProgress.value = ''; els.wPlans.value = ''; els.wProblems.value = '';
+        els.formStatus.innerHTML = '<span class="ok">Weekly PPP submitted.</span>';
+        renderWeekly();
+      } catch (err) { els.formStatus.textContent = err.message; }
+    }
+
+    async function saveObjective() {
+      try {
+        if (!state.currentUser || state.isReviewer) throw new Error('Sign in as a team member to edit objectives.');
+        const text = normalizeObjectiveText(els.objectiveText.value);
+        const payload = { member: state.currentUser, month: els.objectiveMonth.value, text };
+        if (!payload.text) throw new Error('Objective text is required.');
+        if (state.editingObjectiveId) {
+          // Ensure the editing target belongs to the current user
+          const target = state.objectives.find(o => o.id === state.editingObjectiveId);
+          if (target && target.member !== state.currentUser) throw new Error('You can only edit your own objectives.');
+          await api('/objectives/' + state.editingObjectiveId, { method:'PUT', body: JSON.stringify(payload) });
+          state.editingObjectiveId = null;
+          els.saveObjectiveBtn.textContent = 'Save objective box';
+        } else {
+          await api('/objectives', { method:'POST', body: JSON.stringify(payload) });
+        }
+        els.objectiveText.value = '';
+        await loadAll();
+      } catch (err) { els.formStatus.textContent = err.message; }
+    }
+
+    // ===== Globals for inline buttons =====
+    window.startReviseObjective = function(id) {
+      const item = state.objectives.find(o => o.id === id); if (!item) return;
+      if (item.member !== state.currentUser) { alert('You can only revise your own objective.'); return; }
+      state.editingObjectiveId = id;
+      els.objectiveMonth.value = item.month;
+      els.objectiveText.value = item.text;
+      els.saveObjectiveBtn.textContent = 'Update objective box';
+      renderObjectives();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    window.deleteObjective = async function(id) {
+      try {
+        const item = state.objectives.find(o => o.id === id);
+        if (!item) return;
+        if (item.member !== state.currentUser) { alert('You can only delete your own objective.'); return; }
+        await api('/objectives/' + id, { method:'DELETE' });
+        await loadAll();
+      } catch (err) { els.formStatus.textContent = err.message; }
+    };
+    window.prefillWeekly = function(member, weekEnding) {
+      if (member !== state.currentUser) { alert('You can only submit your own weekly PPP.'); return; }
+      switchForm('weekly');
+      els.wWeekEnding.value = weekEnding;
+      const existing = state.weekly.find(w => w.member === member && w.weekEnding === weekEnding);
+      els.wProgress.value = existing?.progress || '';
+      els.wPlans.value = existing?.plans || '';
+      els.wProblems.value = existing?.problems || '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // ===== Tab and form-pane switching =====
+    function switchForm(name){
+      state.activeForm = name;
+      document.querySelectorAll('.sub-tab').forEach(t => t.classList.toggle('active', t.dataset.form === name));
+      document.querySelectorAll('.form-pane').forEach(p => p.classList.toggle('active', p.id === 'form-' + name));
+    }
+    document.querySelectorAll('.sub-tab').forEach(btn => btn.addEventListener('click', () => switchForm(btn.dataset.form)));
+
+    document.querySelectorAll('.tab[data-filter]').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab[data-filter]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.filter = btn.dataset.filter;
+      renderRecords();
+    }));
+    document.querySelectorAll('.tab[data-wfilter]').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab[data-wfilter]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.wfilter = btn.dataset.wfilter;
+      renderWeekly();
+    }));
+
+    els.objectiveMonth.addEventListener('change', renderObjectives);
+    els.resetJulyBtn.addEventListener('click', () => {
+      const julySeeds = seedObjectives.filter(o => o.month === 'July 2026').map((o, i) => ({ id: 'seed-' + i, ...o }));
+      const others = state.objectives.filter(o => o.month !== 'July 2026');
+      state.objectives = [...others, ...julySeeds];
+      els.objectiveMonth.value = 'July 2026';
+      renderObjectives();
+    });
+    els.wWeekEnding.addEventListener('change', () => {
+      state.currentWeekEnding = els.wWeekEnding.value || state.currentWeekEnding;
+      els.dashWeekEnding.value = state.currentWeekEnding;
+      renderWeekly();
+    });
+    els.dashWeekEnding.addEventListener('change', () => {
+      state.currentWeekEnding = els.dashWeekEnding.value || state.currentWeekEnding;
+      els.wWeekEnding.value = state.currentWeekEnding;
+      renderWeekly();
+    });
+
+    // Buttons
+    els.submitBtn.addEventListener('click', submitRecord);
+    els.submitWeeklyBtn.addEventListener('click', submitWeekly);
+    els.saveObjectiveBtn.addEventListener('click', saveObjective);
+    els.refreshBtn.addEventListener('click', loadAll);
+    els.printReportBtn.addEventListener('click', () => window.print());
+
+    // ===== Initial render =====
+    // One-time migration for v4: clear any stale objectives cache from prior versions.
+    if (!localStorage.getItem('v4_migrated')) {
+      try { localStorage.removeItem('objectives_local'); } catch {}
+      localStorage.setItem('v4_migrated', '1');
+    }
+    state.objectives = seedObjectives.map((o, i) => ({ id: 'seed-' + i, ...o }));
+    state.weekly = loadLocalWeekly();
+    els.objectiveMonth.value = 'July 2026';
+    renderAll();
+    restoreSession();
+  </script>
+</body>
+</html>

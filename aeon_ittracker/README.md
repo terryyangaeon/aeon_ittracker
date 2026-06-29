@@ -24,10 +24,6 @@ aeon_ittracker/
 └── README.md
 ```
 
-## Standalone HTML Version
-
-`IT-Team-Tracker-v4.html` is a single-file web application that runs entirely in the browser with localStorage. Open it directly in any modern browser — no installation or build step required. To connect it to the backend API, paste the API URL into the sidebar.
-
 ## Deployment (Zeabur)
 
 Both services are deployed on Zeabur (HKG region) under the **IT-Team-Tracker** project:

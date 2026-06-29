@@ -1,0 +1,20 @@
+{
+  "name": "it-team-tracker-backend",
+  "version": "1.0.0",
+  "description": "Backend API for IT Team Tracker",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "db:migrate": "node -e \"require('./src/db')\" src/schema.sql"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  }
+}
