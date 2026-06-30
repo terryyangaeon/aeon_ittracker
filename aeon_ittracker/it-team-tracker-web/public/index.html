@@ -127,7 +127,7 @@
       </div>
     </div>
 
-    <div class="rules" style="margin-bottom:var(--space-6)">
+    <div class="rules" style="margin-bottom:var(--space-6); display:none">
       <h4>Team expectations</h4>
       <ul>
         <li>Each team member logs their own daily whereabouts and work for each working day.</li>
@@ -161,16 +161,16 @@
             <div class="status muted" id="signInStatus"></div>
           </div>
 
-          <!-- API URL -->
-          <div class="field">
+          <!-- API URL (hidden - pre-configured) -->
+          <div class="field" style="display:none">
             <label for="apiUrl">Online API URL</label>
             <input id="apiUrl" type="url" placeholder="https://your-server-url/api">
             <div class="helper">Paste your deployed online API URL so all members share one live database.</div>
           </div>
 
-          <!-- PIN MANAGEMENT (visible when signed in) -->
+          <!-- PIN MANAGEMENT (hidden) -->
           <div id="pinBlock" style="display:none">
-            <button class="btn" id="changePinBtn" style="width:100%">Change my PIN</button>
+            <button class="btn" id="changePinBtn" style="width:100%; display:none">Change my PIN</button>
           </div>
 
           <!-- ENTRY FORMS (locked until sign-in) -->
