@@ -1,25 +1,23 @@
-// IT Team Tracker — Backend API
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const cron = require('node-cron');
 const pool = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --------------- Middleware ---------------
 app.use(cors({
   origin: process.env.CORS_ORIGINS === '*'
     ? '*'
     : (process.env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean),
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '50mb' }));
 
-// --------------- Auto-migrate on startup ---------------
 async function autoMigrate() {
   const sql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
   const client = await pool.connect();
@@ -28,53 +26,39 @@ async function autoMigrate() {
     console.log('Database schema applied / verified.');
   } catch (err) {
     console.error('Auto-migration warning:', err.message);
-    // Non-fatal — tables may already exist
   } finally {
     client.release();
   }
 }
 
-// --------------- Routes ---------------
-const recordsRouter  = require('./routes/records');
-const objectivesRouter = require('./routes/objectives');
-const weeklyRouter   = require('./routes/weekly');
+app.use('/api/auth',       require('./routes/auth'));
+app.use('/api/config',     require('./routes/config'));
+app.use('/api/entries',    require('./routes/entries'));
+app.use('/api/objectives', require('./routes/objectives'));
+app.use('/api/dashboard',  require('./routes/dashboard'));
+app.use('/api/backup',       require('./routes/backup'));
+app.use('/api/email-alerts', require('./routes/email-alerts'));
 
-// The frontend calls /records, /objectives, /weekly directly
-// (the user enters a base URL like https://xxx.zeabur.app/api)
-// We mount under /api so the full paths are /api/records, etc.
-// But we also mount at root / to be flexible.
-app.use('/api/records',    recordsRouter);
-app.use('/api/objectives', objectivesRouter);
-app.use('/api/weekly',     weeklyRouter);
-
-// Also mount at root for simpler URL configuration
-app.use('/records',    recordsRouter);
-app.use('/objectives', objectivesRouter);
-app.use('/weekly',     weeklyRouter);
-
-// Health check
 app.get('/', (req, res) => {
-  res.json({
-    service: 'IT Team Tracker API',
-    version: '1.0.0',
-    status: 'running',
-    endpoints: {
-      records:    'GET /records, POST /records',
-      objectives: 'GET /objectives, POST /objectives, PUT /objectives/:id, DELETE /objectives/:id',
-      weekly:     'GET /weekly, POST /weekly',
-    },
-  });
+  res.json({ service: 'IT Team Tracker API v2', status: 'running' });
 });
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// --------------- Start ---------------
 async function start() {
   await autoMigrate();
+
+  // Schedule email alert check every minute
+  const { checkAndSendScheduledAlerts } = require('./routes/email-alerts');
+  cron.schedule('* * * * *', () => {
+    checkAndSendScheduledAlerts();
+  }, { timezone: 'Asia/Hong_Kong' });
+  console.log('Email alert scheduler started (Asia/Hong_Kong timezone).');
+
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`IT Team Tracker API running on port ${PORT}`);
+    console.log(`IT Team Tracker API v2 running on port ${PORT}`);
   });
 }
 

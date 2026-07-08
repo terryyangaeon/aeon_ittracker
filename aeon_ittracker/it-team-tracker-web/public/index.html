@@ -1,932 +1,2183 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IT Team Tracker Online</title>
-  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
-  <style>
-    :root, [data-theme="light"] {
-      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
-      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
-      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
-      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
-      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
-      --space-2:.5rem; --space-3:.75rem; --space-4:1rem; --space-5:1.25rem; --space-6:1.5rem; --space-8:2rem;
-      --color-bg:#f7f6f2; --color-surface:#f9f8f5; --color-surface-2:#fbfbf9; --color-surface-offset:#f3f0ec;
-      --color-border:#d4d1ca; --color-text:#28251d; --color-text-muted:#6c6a64; --color-text-inverse:#f9f8f4;
-      --color-primary:#01696f; --color-primary-hover:#0c4e54; --color-primary-highlight:#cedcd8;
-      --color-success:#437a22; --color-success-bg:#dcecd0;
-      --color-warning:#964219; --color-warning-bg:#f3d6c8;
-      --color-danger:#9b1c1c;  --color-danger-bg:#f7d1d1;
-      --color-info:#1c4f9b;    --color-info-bg:#d4def0;
-      --radius-md:.5rem; --radius-lg:.75rem; --radius-xl:1rem;
-      --shadow-sm:0 1px 2px rgba(0,0,0,.05); --shadow-md:0 12px 32px rgba(0,0,0,.08);
-      --font-body:'Satoshi', Arial, sans-serif;
-    }
-    [data-theme="dark"] {
-      --color-bg:#171614; --color-surface:#1c1b19; --color-surface-2:#201f1d; --color-surface-offset:#1d1c1a;
-      --color-border:#393836; --color-text:#cdccca; --color-text-muted:#9f9d99; --color-text-inverse:#2b2a28;
-      --color-primary:#4f98a3; --color-primary-hover:#227f8b; --color-primary-highlight:#313b3b;
-      --color-success:#6daa45; --color-success-bg:#2a3a22;
-      --color-warning:#bb653b; --color-warning-bg:#3a2a20;
-      --color-danger:#d56b6b;  --color-danger-bg:#3a2222;
-      --color-info:#7aa6e3;    --color-info-bg:#1f2a3a;
-      --shadow-sm:0 1px 2px rgba(0,0,0,.22); --shadow-md:0 12px 32px rgba(0,0,0,.32);
-    }
-    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
-    body{font-family:var(--font-body);font-size:var(--text-base);line-height:1.55;color:var(--color-text);background:linear-gradient(180deg,var(--color-surface-2),var(--color-bg))}
-    button,input,textarea,select{font:inherit}
-    .app{max-width:1280px;margin:0 auto;padding:var(--space-6)}
-    .topbar{display:flex;justify-content:space-between;gap:var(--space-4);align-items:flex-start;flex-wrap:wrap;margin-bottom:var(--space-6)}
-    h1{margin:0 0 var(--space-2);font-size:var(--text-xl);line-height:1.1}
-    .muted{color:var(--color-text-muted)}
-    .actions{display:flex;gap:var(--space-3);flex-wrap:wrap;align-items:center}
-    .who{font-size:var(--text-sm);color:var(--color-text-muted)}
-    .who strong{color:var(--color-text)}
-    .btn{min-height:44px;padding:.78rem 1rem;border-radius:var(--radius-lg);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);cursor:pointer;box-shadow:var(--shadow-sm)}
-    .btn.primary{background:var(--color-primary);color:var(--color-text-inverse);border-color:transparent}
-    .btn.primary:hover{background:var(--color-primary-hover)}
-    .btn.warn{background:var(--color-surface-offset)}
-    .btn:disabled{opacity:.55;cursor:not-allowed}
-    .layout{display:grid;grid-template-columns:340px 1fr;gap:var(--space-6)}
-    .card{background:color-mix(in srgb,var(--color-surface) 90%,transparent);border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-md)}
-    .sidebar{padding:var(--space-5);position:sticky;top:var(--space-4);align-self:start}
-    .section{padding:var(--space-5)}
-    .stack{display:grid;gap:var(--space-4)}
-    .field{display:grid;gap:var(--space-2)}
-    .field label{font-size:var(--text-sm);font-weight:700}
-    .field input,.field select,.field textarea{width:100%;min-height:44px;padding:.8rem .9rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface-2);color:var(--color-text)}
-    .field textarea{min-height:90px;resize:vertical}
-    .helper{font-size:var(--text-xs);color:var(--color-text-muted)}
-    .badge{display:inline-flex;align-items:center;padding:.3rem .6rem;border-radius:999px;font-size:var(--text-xs);font-weight:700;background:var(--color-primary-highlight);color:var(--color-primary)}
-    .badge.green{background:var(--color-success-bg);color:var(--color-success)}
-    .badge.red{background:var(--color-danger-bg);color:var(--color-danger)}
-    .badge.amber{background:var(--color-warning-bg);color:var(--color-warning)}
-    .badge.blue{background:var(--color-info-bg);color:var(--color-info)}
-    .summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4)}
-    .metric{background:var(--color-surface-offset);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4)}
-    .metric .k{font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em}
-    .metric .v{font-size:var(--text-lg);font-weight:700;margin-top:var(--space-2)}
-    .site-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem;margin-top:var(--space-3)}
-    .site-chip{display:flex;align-items:center;justify-content:space-between;padding:.45rem .65rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface-2);font-size:var(--text-xs)}
-    .site-chip .dot{width:.55rem;height:.55rem;border-radius:999px;background:var(--color-border)}
-    .site-chip.covered{background:var(--color-success-bg);border-color:transparent;color:var(--color-success)}
-    .site-chip.covered .dot{background:var(--color-success)}
-    .records,.objective-list,.weekly-list{display:grid;gap:var(--space-4)}
-    .entry,.objective,.weekly{border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4);background:var(--color-surface-2)}
-    .entry-head,.objective-head,.weekly-head,.toolbar{display:flex;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap;align-items:flex-start}
-    .entry h3,.objective h3,.weekly h3{margin:0;font-size:var(--text-lg)}
-    .meta{color:var(--color-text-muted);font-size:var(--text-sm)}
-    .status{font-size:var(--text-sm)} .ok{color:var(--color-success)} .warn-text{color:var(--color-warning)}
-    .tabs{display:flex;gap:var(--space-3);flex-wrap:wrap}
-    .tab{min-height:40px;padding:.55rem .9rem;border-radius:999px;border:1px solid var(--color-border);background:var(--color-surface);cursor:pointer;font-size:var(--text-sm)}
-    .tab.active{background:var(--color-primary);color:var(--color-text-inverse);border-color:transparent}
-    .two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4)}
-    .three-col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-4)}
-    .empty{padding:var(--space-8);text-align:center;color:var(--color-text-muted);border:1px dashed var(--color-border);border-radius:var(--radius-lg)}
-    .main{display:grid;gap:var(--space-6)}
-    .obj-lines{white-space:pre-line}
-    .rules{background:var(--color-info-bg);color:var(--color-info);border:1px solid color-mix(in srgb,var(--color-info) 25%,transparent);border-radius:var(--radius-lg);padding:var(--space-4)}
-    .rules h4{margin:0 0 var(--space-2);font-size:var(--text-sm);text-transform:uppercase;letter-spacing:.06em}
-    .rules ul{margin:0;padding-left:1.1rem}
-    .rules li{font-size:var(--text-sm)}
-    .sub-tabs{display:flex;gap:var(--space-2);flex-wrap:wrap;margin-bottom:var(--space-4)}
-    .sub-tab{min-height:38px;padding:.45rem .85rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);cursor:pointer;font-size:var(--text-sm)}
-    .sub-tab.active{background:var(--color-primary);color:var(--color-text-inverse);border-color:transparent}
-    .form-pane{display:none}
-    .form-pane.active{display:grid;gap:var(--space-3)}
-    .weekly .ppp-block{margin-top:var(--space-3)}
-    .weekly .ppp-block strong{display:block;font-size:var(--text-sm);margin-bottom:.25rem}
-    .login{padding:var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-2);display:grid;gap:var(--space-2)}
-    @media (max-width:980px){.layout,.summary,.two-col,.three-col{grid-template-columns:1fr}.sidebar{position:static}.app{padding:var(--space-4)}.summary{grid-template-columns:repeat(2,1fr)}}
-    /* Print styles for Monday consolidated report */
-    @media print {
-      body{background:#fff}
-      .app{max-width:100%;padding:0}
-      .sidebar,.topbar .actions,.tabs,.sub-tabs,.rules,#dailyEntrySection,#objectivesSection,#dailyRecordsSection,#weeklyCardsSection,#dashboardSection,.no-print{display:none !important}
-      .layout{grid-template-columns:1fr}
-      .card{box-shadow:none;border-color:#bbb}
-      .weekly{break-inside:avoid;page-break-inside:avoid}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Team Tracker</title>
+<style>
+:root {
+  --bg: #f5f5f0;
+  --surface: #ffffff;
+  --surface-alt: #f8f8f5;
+  --text: #1a1a1a;
+  --text-muted: #666;
+  --border: #e0ddd5;
+  --primary: #2d6a4f;
+  --primary-light: #d8f3dc;
+  --danger: #d32f2f;
+  --danger-light: #ffebee;
+  --info: #1565c0;
+  --info-light: #e3f2fd;
+  --warning: #f57f17;
+  --warning-light: #fff8e1;
+  --success: #2e7d32;
+  --success-light: #e8f5e9;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08);
+  --ribbon-h: 56px;
+}
+[data-theme="dark"] {
+  --bg: #1a1a1a;
+  --surface: #2a2a2a;
+  --surface-alt: #333;
+  --text: #e8e8e8;
+  --text-muted: #999;
+  --border: #444;
+  --primary: #52b788;
+  --primary-light: #1b3a2a;
+  --shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+a { color: var(--primary); text-decoration: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: none; background: none; }
+
+/* Login */
+#login-view { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem; }
+.login-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem; width: 100%; max-width: 400px; box-shadow: var(--shadow); }
+.login-card h1 { font-size: 1.5rem; margin-bottom: .25rem; }
+.login-card p { color: var(--text-muted); margin-bottom: 1.5rem; font-size: .9rem; }
+.login-card .field { margin-bottom: 1rem; }
+.login-card label { display: block; font-weight: 600; font-size: .85rem; margin-bottom: .3rem; }
+.login-card input { width: 100%; padding: .6rem .75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); }
+.login-card input:focus { outline: 2px solid var(--primary); border-color: transparent; }
+.login-error { color: var(--danger); font-size: .85rem; margin-bottom: .75rem; display: none; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1rem; border-radius: var(--radius); font-weight: 600; font-size: .85rem; transition: opacity .15s; }
+.btn:hover { opacity: .85; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-outline { border: 1px solid var(--border); background: var(--surface); }
+.btn-sm { padding: .35rem .7rem; font-size: .8rem; }
+.btn-full { width: 100%; justify-content: center; }
+
+/* Ribbon */
+#ribbon { position: fixed; top: 0; left: 0; right: 0; height: var(--ribbon-h); background: var(--primary); color: #fff; display: flex; align-items: center; padding: 0 1.25rem; gap: 1rem; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,.15); }
+#ribbon .logo { font-weight: 700; font-size: 1.1rem; white-space: nowrap; }
+#ribbon nav { display: flex; gap: .25rem; flex: 1; overflow-x: auto; }
+#ribbon nav button { color: rgba(255,255,255,.75); padding: .4rem .75rem; border-radius: var(--radius); font-size: .85rem; white-space: nowrap; transition: background .15s, color .15s; }
+#ribbon nav button:hover, #ribbon nav button.active { background: rgba(255,255,255,.18); color: #fff; }
+.user-menu { position: relative; margin-left: auto; display: flex; align-items: center; gap: .5rem; }
+.user-menu .user-name { font-weight: 600; font-size: .9rem; cursor: pointer; padding: .3rem .6rem; border-radius: var(--radius); }
+.user-menu .user-name:hover { background: rgba(255,255,255,.15); }
+.user-dropdown { position: absolute; top: 100%; right: 0; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,.15); min-width: 160px; display: none; z-index: 200; }
+.user-dropdown.show { display: block; }
+.user-dropdown button { display: block; width: 100%; text-align: left; padding: .6rem 1rem; font-size: .85rem; }
+.user-dropdown button:hover { background: var(--surface-alt); }
+
+/* Main content */
+#app { display: none; }
+.main { padding: calc(var(--ribbon-h) + 1.25rem) 1.25rem 2rem; max-width: 1200px; margin: 0 auto; }
+.view { display: none; }
+.view.active { display: block; }
+
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; box-shadow: var(--shadow); }
+.card h2 { font-size: 1.15rem; margin-bottom: .75rem; }
+.card h3 { font-size: 1rem; margin-bottom: .5rem; }
+
+/* Metrics grid */
+.metrics { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: .75rem; margin-bottom: 1.25rem; }
+.metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: .5rem .75rem; text-align: center; }
+.metric .label { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); font-weight: 600; }
+.metric .value { font-size: 1.5rem; font-weight: 700; margin: .1rem 0; }
+.metric.green .value { color: var(--success); }
+.metric.red .value { color: var(--danger); }
+.metric.blue .value { color: var(--info); }
+
+/* Bar chart */
+.bar-chart { display: flex; flex-direction: column; gap: .5rem; }
+.bar-row { display: flex; align-items: center; gap: .4rem; position: relative; }
+.bar-row .bar-label { width: 70px; font-size: .75rem; text-align: right; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-row .bar-track { flex: 1; height: 18px; background: var(--surface-alt); border-radius: 4px; position: relative; }
+.bar-row .bar-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width .4s; min-width: 2px; }
+.bar-row .bar-val { width: 20px; font-size: .8rem; font-weight: 600; }
+
+/* Form */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.form-grid .full { grid-column: 1 / -1; }
+.field { margin-bottom: .75rem; }
+.field label { display: block; font-weight: 600; font-size: .85rem; margin-bottom: .3rem; }
+.field input, .field select, .field textarea { width: 100%; padding: .5rem .65rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); }
+.field textarea { resize: vertical; min-height: 80px; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--primary); border-color: transparent; }
+
+/* Date picker styling */
+input[type="date"] { position: relative; cursor: pointer; }
+input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; padding: 4px; border-radius: 4px; background-color: var(--primary); opacity: .85; filter: invert(1); }
+input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+/* Checkboxes grid */
+.checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0; }
+.checkbox-grid label { display: flex; align-items: center; gap: .35rem; font-weight: 400; font-size: .82rem; padding: .1rem .4rem; border-radius: 4px; cursor: pointer; line-height: 1.1; }
+.checkbox-grid label:hover { background: var(--surface-alt); }
+.checkbox-grid input[type="checkbox"] { width: auto; accent-color: var(--primary); }
+.leave-checks { display: flex; gap: 1.5rem; }
+.leave-checks label { display: flex; align-items: center; gap: .4rem; font-weight: 400; cursor: pointer; }
+.leave-checks input { width: auto; accent-color: var(--warning); }
+
+/* Table */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+th, td { padding: .3rem .65rem; text-align: left; border-bottom: 1px solid var(--border); line-height: 1.2; }
+th { background: var(--surface-alt); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); position: sticky; top: 0; }
+tr:hover td { background: var(--surface-alt); }
+
+/* Status badges */
+.badge { display: inline-block; padding: .15rem .5rem; border-radius: 12px; font-size: .75rem; font-weight: 600; }
+.badge-draft { background: var(--warning-light); color: var(--warning); }
+.badge-submitted { background: var(--success-light); color: var(--success); }
+.badge-reviewed { background: var(--info-light); color: var(--info); }
+
+/* Filters row */
+.filters { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .75rem; }
+.filters select, .filters input { padding: .4rem .6rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-size: .85rem; }
+.filters input[type="date"] { cursor: pointer; }
+.filters input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; padding: 3px; border-radius: 4px; background-color: var(--primary); opacity: .85; filter: invert(1); }
+.filters input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 300; }
+.modal { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; width: 90%; max-width: 520px; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+.modal h2 { margin-bottom: 1rem; font-size: 1.1rem; }
+.modal .actions { display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1rem; }
+
+/* Config table */
+.config-group { margin-bottom: 1.5rem; }
+.config-group h3 { font-size: .95rem; margin-bottom: .5rem; padding: .4rem .65rem; background: var(--surface-alt); border-radius: var(--radius); }
+
+/* Gauge charts — semi-circle */
+.gauge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem .75rem; }
+.gauge-item { display: flex; flex-direction: column; align-items: center; }
+.gauge-item .gauge-name { font-size: .8rem; font-weight: 600; text-align: center; margin-top: -8px; }
+.gauge-wrap { position: relative; width: 100px; height: 58px; overflow: hidden; }
+.gauge-wrap svg { position: absolute; top: 0; left: 0; }
+.gauge-wrap .gauge-label { position: absolute; left: 0; right: 0; bottom: 2px; text-align: center; font-weight: 700; font-size: 1rem; line-height: 1.1; }
+.gauge-wrap .gauge-label small { display: block; font-size: .55rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+@media (max-width: 600px) { .gauge-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* Leave tooltip */
+.leave-tooltip { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,.2); z-index: 250; min-width: 280px; font-size: .8rem; overflow: hidden; }
+.leave-tooltip table { width: 100%; border-collapse: collapse; }
+.leave-tooltip th { background: var(--warning); color: #fff; font-size: .75rem; padding: .35rem .6rem; }
+.leave-tooltip td { padding: .3rem .6rem; text-align: center; border-bottom: 1px solid var(--border); }
+.leave-tooltip td:first-child { text-align: left; }
+.leave-bar-wrap { position: relative; cursor: pointer; min-width: 14px; }
+.leave-bar-wrap:hover .leave-tooltip { display: block; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: 1fr 1fr; }
+  #ribbon nav { display: none; }
+}
+
+/* Objective cards */
+.obj-lines textarea { min-height: 120px; font-family: inherit; line-height: 1.6; }
+.obj-card { border-left: 3px solid var(--primary); }
+.obj-card.disabled { opacity: .7; }
+.obj-card.disabled textarea { background: var(--surface-alt); pointer-events: none; }
+
+/* Toast */
+.toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--text); color: var(--bg); padding: .65rem 1.25rem; border-radius: var(--radius); font-size: .85rem; z-index: 400; animation: fadeIn .2s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* User rows */
+.user-row { display: flex; align-items: center; gap: 1rem; padding: .65rem 0; border-bottom: 1px solid var(--border); }
+.user-row:last-child { border-bottom: none; }
+.user-info { flex: 1; }
+.user-info .name { font-weight: 600; }
+.user-info .email { font-size: .85rem; color: var(--text-muted); }
+.role-badge { font-size: .75rem; padding: .15rem .5rem; border-radius: 12px; font-weight: 600; }
+.role-badge.reviewer { background: var(--info-light); color: var(--info); }
+.role-badge.general { background: var(--success-light); color: var(--success); }
+</style>
 </head>
 <body>
-  <div class="app">
-    <div style="background:#dcecd0;color:#437a22;padding:.5rem 1rem;border-radius:.5rem;font-weight:700;margin-bottom:1rem;text-align:center">Version 4 · If you can see this banner, you have the latest file.</div>
-    <div class="topbar">
-      <div>
-        <h1>IT Team Tracker Online <span style="font-size:.7em;color:#6c6a64">v4</span></h1>
-        <p class="muted">Daily attendance log, weekly PPP status reports, and revisable monthly objectives.</p>
-      </div>
-      <div class="actions">
-        <span class="who" id="whoLabel">Not signed in</span>
-        <button class="btn" id="signOutBtn" style="display:none">Sign out</button>
-        <button class="btn" id="themeToggle">Dark mode</button>
-        <button class="btn" id="refreshBtn">Refresh</button>
+
+<!-- ==================== LOGIN ==================== -->
+<div id="login-view">
+  <div class="login-card">
+    <h1>IT Team Tracker</h1>
+    <p>Daily attendance, weekly PPP reports, and monthly objectives.</p>
+    <div id="login-error" class="login-error"></div>
+    <div class="field">
+      <label for="login-email">Email</label>
+      <input type="email" id="login-email" placeholder="name@aeondelightasia.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label for="login-pin">PIN (4 digits)</label>
+      <input type="password" id="login-pin" maxlength="4" pattern="\d{4}" placeholder="----" inputmode="numeric" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()" style="margin-top:.5rem">Sign In</button>
+  </div>
+</div>
+
+<!-- ==================== APP SHELL ==================== -->
+<div id="app">
+  <header id="ribbon">
+    <span class="logo">IT Team Tracker</span>
+    <nav id="main-nav">
+      <button data-view="dashboard" class="active">Dashboard</button>
+      <button data-view="daily">Daily Work</button>
+      <button data-view="weekly">Weekly PPP</button>
+      <button data-view="monthly">Monthly Objectives</button>
+      <button data-view="reports" id="nav-reports" style="display:none">Report</button>
+      <button data-view="accounts" id="nav-accounts" style="display:none">Account Management</button>
+      <button data-view="config" id="nav-config" style="display:none">System Config</button>
+    </nav>
+    <div class="user-menu">
+      <span class="user-name" id="user-display" onclick="toggleUserMenu()"></span>
+      <div class="user-dropdown" id="user-dropdown">
+        <button onclick="showChangePin()">Change PIN</button>
+        <button onclick="toggleTheme()">Toggle Dark Mode</button>
+        <button onclick="doSignOut()">Sign Out</button>
       </div>
     </div>
+  </header>
 
-    <div class="rules" style="margin-bottom:var(--space-6); display:none">
-      <h4>Team expectations</h4>
-      <ul>
-        <li>Each team member logs their own daily whereabouts and work for each working day.</li>
-        <li>Each team member submits their own Weekly PPP status report (Progress / Plans / Problems) by Friday 17:30 HKT.</li>
-        <li>Flag any Problems clearly so blockers can be resolved early.</li>
-        <li>Philip reviews the consolidated Weekly PPP every Monday morning.</li>
-      </ul>
-    </div>
-
-    <div class="layout">
-      <aside class="card sidebar">
-        <div class="stack">
-
-          <!-- SIGN-IN BLOCK -->
-          <div id="signInBlock" class="login">
-            <div class="badge">Sign in</div>
-            <div class="field">
-              <label for="loginMember">I am</label>
-              <select id="loginMember">
-                <option value="">— select your name —</option>
-                <option>Jimmy</option><option>James</option><option>Riot</option><option>Terry</option><option>Timothy</option>
-                <option>Philip (Reviewer)</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="loginPin">PIN</label>
-              <input id="loginPin" type="password" inputmode="numeric" maxlength="8" placeholder="Enter your PIN">
-              <div class="helper">First-time default PIN for all members is <strong>1111</strong>. Philip's default PIN is <strong>9999</strong>. Use "Change PIN" after signing in.</div>
-            </div>
-            <button class="btn primary" id="signInBtn">Sign in</button>
-            <div class="status muted" id="signInStatus"></div>
-          </div>
-
-          <!-- API URL (hidden - pre-configured) -->
-          <div class="field" style="display:none">
-            <label for="apiUrl">Online API URL</label>
-            <input id="apiUrl" type="url" placeholder="https://your-server-url/api">
-            <div class="helper">Paste your deployed online API URL so all members share one live database.</div>
-          </div>
-
-          <!-- PIN MANAGEMENT (hidden) -->
-          <div id="pinBlock" style="display:none">
-            <button class="btn" id="changePinBtn" style="width:100%; display:none">Change my PIN</button>
-          </div>
-
-          <!-- ENTRY FORMS (locked until sign-in) -->
-          <div class="sub-tabs">
-            <button class="sub-tab active" data-form="daily">Daily entry</button>
-            <button class="sub-tab" data-form="weekly">Weekly PPP</button>
-          </div>
-
-          <!-- DAILY FORM -->
-          <div class="form-pane active" id="form-daily">
-            <div class="field">
-              <label for="date">Date</label>
-              <input id="date" type="date">
-            </div>
-            <div class="field">
-              <label for="site">Whereabouts / site</label>
-              <select id="site"><option>MC6</option><option>PWH</option><option>KWH</option><option>UCH</option><option>CHT</option><option>SMT</option><option>TKO</option><option>Remote to be specified</option></select>
-            </div>
-            <div class="field">
-              <label for="tasks">Work completed today</label>
-              <textarea id="tasks" placeholder="Daily work completed"></textarea>
-            </div>
-            <div class="field">
-              <label for="deliverables">Deliverables / outcomes</label>
-              <textarea id="deliverables" placeholder="What was completed or achieved today?"></textarea>
-            </div>
-            <button class="btn primary" id="submitBtn" disabled>Submit daily entry</button>
-          </div>
-
-          <!-- WEEKLY PPP FORM -->
-          <div class="form-pane" id="form-weekly">
-            <div class="field">
-              <label for="wWeekEnding">Week ending (Friday)</label>
-              <input id="wWeekEnding" type="date">
-              <div class="helper">Defaults to this week's Friday.</div>
-            </div>
-            <div class="field">
-              <label for="wProgress">Progress — what did you complete this week?</label>
-              <textarea id="wProgress" placeholder="Accomplishments and finished items"></textarea>
-            </div>
-            <div class="field">
-              <label for="wPlans">Plans — what will you focus on next week?</label>
-              <textarea id="wPlans" placeholder="Goals and priorities for next week"></textarea>
-            </div>
-            <div class="field">
-              <label for="wProblems">Problems — what is blocked or needs help?</label>
-              <textarea id="wProblems" placeholder="Blockers, risks, requests for help (leave empty if none)"></textarea>
-            </div>
-            <button class="btn primary" id="submitWeeklyBtn" disabled>Submit weekly PPP</button>
-          </div>
-
-          <div class="status muted" id="formStatus">Sign in to submit entries.</div>
+  <div class="main">
+    <!-- ========== DASHBOARD ========== -->
+    <div id="dashboard-view" class="view active">
+      <div class="metrics" id="dash-metrics"></div>
+      <div style="display:grid;grid-template-columns:4fr 1fr;gap:.75rem">
+        <div class="card" style="margin:0">
+          <h3>Submission Status per User (Mon - Fri)</h3>
+          <div id="dash-submission-chart"></div>
         </div>
-      </aside>
-
-      <main class="main">
-
-        <!-- DASHBOARD -->
-        <section class="card section" id="dashboardSection">
-          <div class="entry-head" style="margin-bottom:var(--space-3)">
-            <div>
-              <h3 style="margin:0">This week's dashboard</h3>
-              <div class="meta" id="weekLabel">—</div>
-            </div>
-            <div class="field" style="min-width:220px">
-              <label for="dashWeekEnding">Show week ending (Friday)</label>
-              <input id="dashWeekEnding" type="date">
-            </div>
+        <div class="card" style="margin:0;overflow:visible">
+          <h3>Outside Work / Leave (Days)</h3>
+          <div class="bar-chart" id="dash-outside-chart" style="overflow:visible"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem">
+          <h3 style="margin:0">Daily Work</h3>
+          <div class="filters" style="margin:0">
+            <select id="dash-user-filter"><option value="">All Users</option></select>
+            <label style="font-size:.85rem">From</label>
+            <input type="date" id="dash-date-from">
+            <label style="font-size:.85rem">To</label>
+            <input type="date" id="dash-date-to">
+            <button class="btn btn-outline btn-sm" onclick="loadDashboard()">Refresh</button>
           </div>
-          <div class="summary">
-            <div class="metric"><div class="k">Submitted this week</div><div class="v" id="mSubmitted">0</div></div>
-            <div class="metric"><div class="k">Outstanding this week</div><div class="v" id="mOutstanding">0</div></div>
-            <div class="metric"><div class="k">Members with blockers</div><div class="v" id="mBlocked">0</div></div>
-            <div class="metric"><div class="k">Daily entries this week</div><div class="v" id="mDaily">0</div></div>
-          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>User</th><th>Sites</th><th>Description</th><th>Leave</th><th>Status</th></tr></thead>
+            <tbody id="dash-entries-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== DAILY WORK ========== -->
+    <div id="daily-view" class="view">
+      <h2 style="margin-bottom:.5rem">Daily Work Entry</h2>
+      <div class="card" style="padding:.75rem 1rem">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
           <div>
-            <div class="meta" style="margin-top:var(--space-4);font-weight:700">Site coverage this week</div>
-            <div class="site-grid" id="siteCoverage"></div>
+            <div style="display:flex;gap:1.5rem;align-items:flex-start;margin-bottom:.35rem">
+              <div class="field" style="margin:0">
+                <label for="daily-date">Date</label>
+                <input type="date" id="daily-date" style="max-width:250px">
+              </div>
+              <div class="field" style="margin:0">
+                <label>Leave</label>
+                <div class="leave-checks" style="margin-top:.15rem">
+                  <label><input type="checkbox" id="daily-leave-am"> AM Leave</label>
+                  <label><input type="checkbox" id="daily-leave-pm"> PM Leave</label>
+                </div>
+              </div>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Sites (Allow multiple sites per entries. Leave it blank if you applied whole day leave)</label>
+              <div class="checkbox-grid" id="daily-sites" style="grid-template-columns:1fr 1fr"></div>
+            </div>
           </div>
-        </section>
+          <div style="display:flex;flex-direction:column">
+            <div class="field" style="margin:0;display:flex;flex-direction:column;flex:1">
+              <label for="daily-desc">Description</label>
+              <textarea id="daily-desc" rows="5" placeholder="Work completed today..." style="flex:1;min-height:60px"></textarea>
+            </div>
+            <div style="display:flex;gap:.5rem;margin-top:.4rem;justify-content:flex-end">
+              <button class="btn btn-outline" onclick="saveDaily('Draft')">Save Draft</button>
+              <button class="btn btn-primary" onclick="saveDaily('Submitted')">Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:.5rem;padding:.75rem 1rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem">
+          <h3 style="margin:0">This Week's Daily Entries</h3>
+          <div class="filters" style="margin:0">
+            <label style="font-size:.85rem">From</label>
+            <input type="date" id="daily-filter-from">
+            <label style="font-size:.85rem">To</label>
+            <input type="date" id="daily-filter-to">
+            <button class="btn btn-outline btn-sm" onclick="loadDailyWeek()">Refresh</button>
+          </div>
+        </div>
+        <div class="tbl-wrap" style="max-height:220px;overflow-y:auto">
+          <table>
+            <thead><tr><th>Date</th><th>Sites</th><th>Description</th><th>Leave</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="daily-week-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-        <!-- MONDAY CONSOLIDATED REPORT (single report, all members) -->
-        <section class="card section" id="mondayReportSection">
-          <div class="entry-head">
-            <div>
-              <h3 style="margin:0">Monday consolidated Weekly PPP report</h3>
-              <div class="meta" id="mondayReportSubtitle">One single report for Philip's review — all members for the week ending Friday.</div>
-            </div>
-            <div class="actions no-print">
-              <button class="btn" id="printReportBtn">Print / Save as PDF</button>
-            </div>
+    <!-- ========== WEEKLY PPP ========== -->
+    <div id="weekly-view" class="view">
+      <h2 style="margin-bottom:1rem">Weekly PPP Entry</h2>
+      <div class="card">
+        <div class="field" style="margin-bottom:.75rem">
+          <label for="weekly-date">Week Ending (Friday)</label>
+          <input type="date" id="weekly-date" style="max-width:300px">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem">
+          <div class="field" style="margin:0;display:flex;flex-direction:column">
+            <label for="weekly-desc">Progress (What was completed this week)</label>
+            <textarea id="weekly-desc" rows="6" placeholder="Progress this week..." style="flex:1"></textarea>
           </div>
-          <div id="mondayReport" style="margin-top:var(--space-4)"></div>
-        </section>
+          <div class="field" style="margin:0;display:flex;flex-direction:column">
+            <label for="weekly-blockage">Blockage / Problems</label>
+            <textarea id="weekly-blockage" rows="6" placeholder="Any blockers or issues..." style="flex:1"
+              oninput="this.style.background=this.value.trim()?'rgba(220,53,69,.25)':'';this.style.color=this.value.trim()?'#ff6b6b':''"></textarea>
+          </div>
+          <div class="field" style="margin:0;display:flex;flex-direction:column">
+            <label for="weekly-next">Next Week Target / Plans</label>
+            <textarea id="weekly-next" rows="6" placeholder="Focus for next week..." style="flex:1"></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;margin-top:.75rem;justify-content:flex-end">
+          <button class="btn btn-outline" onclick="saveWeekly('Draft')">Save Draft</button>
+          <button class="btn btn-primary" onclick="saveWeekly('Submitted')">Submit</button>
+        </div>
+      </div>
+      <div class="card" id="weekly-entries-card" style="margin-top:1rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;flex-wrap:wrap;gap:.5rem">
+          <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+            <h3 style="margin:0">This Week's PPP Entries</h3>
+            <span id="weekly-warning" style="display:none;font-size:.8rem;color:var(--danger);font-weight:600"></span>
+          </div>
+          <div class="filters" style="margin:0">
+            <label style="font-size:.85rem">Show</label>
+            <select id="weekly-limit" onchange="loadWeeklyWeek()">
+              <option value="1" selected>Top 1</option>
+              <option value="10">Top 10</option>
+              <option value="20">Top 20</option>
+              <option value="0">All</option>
+            </select>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Week Ending</th><th>Progress</th><th>Blockage</th><th>Next Week</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="weekly-week-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-        <!-- WEEKLY PPP CARDS (per member, working area) -->
-        <section class="card section" id="weeklyCardsSection">
-          <div class="entry-head">
-            <div>
-              <h3>Weekly PPP cards (working view)</h3>
-              <div class="meta">One card per member for the selected week, with status badge.</div>
-            </div>
-            <div class="tabs">
-              <button class="tab active" data-wfilter="">All members</button>
-              <button class="tab" data-wfilter="Jimmy">Jimmy</button>
-              <button class="tab" data-wfilter="James">James</button>
-              <button class="tab" data-wfilter="Riot">Riot</button>
-              <button class="tab" data-wfilter="Terry">Terry</button>
-              <button class="tab" data-wfilter="Timothy">Timothy</button>
-            </div>
-          </div>
-          <div class="weekly-list" id="weeklyList" style="margin-top:var(--space-4)"></div>
-        </section>
+    <!-- ========== MONTHLY OBJECTIVES ========== -->
+    <div id="monthly-view" class="view">
+      <h2 style="margin-bottom:1rem">Monthly Objectives</h2>
+      <div class="filters" style="margin-bottom:1rem">
+        <select id="obj-month"></select>
+        <select id="obj-year"></select>
+        <button class="btn btn-outline btn-sm" onclick="loadObjectives()">Load</button>
+      </div>
+      <div id="obj-cards"></div>
+    </div>
 
-        <!-- MONTHLY OBJECTIVES -->
-        <section class="card section" id="objectivesSection">
-          <div class="objective-head">
-            <div>
-              <h3>Key monthly objectives</h3>
-              <div class="meta">One box per IT staff per month, up to 5 lines. View is strictly filtered by the selected month — no carryover.</div>
-            </div>
-            <div>
-              <button class="btn" id="resetJulyBtn">Reset July 2026 examples</button>
-            </div>
-          </div>
-          <div class="toolbar" style="margin:1rem 0;">
-            <div class="field" style="min-width:180px;flex:1;">
-              <label for="objectiveMonth">Month</label>
-              <select id="objectiveMonth"></select>
-            </div>
-            <div class="field" style="min-width:320px;flex:3;">
-              <label for="objectiveText">Objectives (up to 5 lines)</label>
-              <textarea id="objectiveText" placeholder="Enter one objective per line, up to 5 lines"></textarea>
-              <div class="helper">August 2026 onwards are intentionally blank — each member adds their own after agreement with Philip.</div>
-            </div>
-            <div style="display:flex;align-items:end;">
-              <button class="btn primary" id="saveObjectiveBtn" disabled>Save objective box</button>
-            </div>
-          </div>
-          <div class="objective-list" id="objectiveList"></div>
-        </section>
+    <!-- ========== SYSTEM CONFIG ========== -->
+    <div id="config-view" class="view">
+      <h2 style="margin-bottom:1rem">System Configuration</h2>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Type</th><th style="width:120px">Actions</th></tr></thead>
+            <tbody id="config-type-body"></tbody>
+          </table>
+        </div>
+      </div>
 
-        <!-- LIVE DAILY RECORDS -->
-        <section class="card section" id="dailyRecordsSection">
-          <div class="entry-head">
-            <div>
-              <h3>Live daily records</h3>
-              <div class="meta">All users see shared live daily entries once the online API is connected.</div>
-            </div>
-            <div class="tabs">
-              <button class="tab active" data-filter="">All</button>
-              <button class="tab" data-filter="Jimmy">Jimmy</button>
-              <button class="tab" data-filter="James">James</button>
-              <button class="tab" data-filter="Riot">Riot</button>
-              <button class="tab" data-filter="Terry">Terry</button>
-              <button class="tab" data-filter="Timothy">Timothy</button>
-            </div>
-          </div>
-          <div class="summary" style="margin-top:var(--space-4);grid-template-columns:repeat(3,1fr)">
-            <div class="metric"><div class="k">Live records</div><div class="v" id="totalRecords">0</div></div>
-            <div class="metric"><div class="k">Latest date</div><div class="v" id="latestDate">—</div></div>
-            <div class="metric"><div class="k">Members reporting</div><div class="v" id="membersReporting">0</div></div>
-          </div>
-          <div class="records" id="records" style="margin-top:var(--space-4)"></div>
-        </section>
+      <!-- Email Alert Configuration -->
+      <h2 style="margin:1.5rem 0 1rem">Email Alert Configuration</h2>
 
-      </main>
+      <!-- SMTP Settings -->
+      <div class="card">
+        <h3 style="margin-bottom:.75rem">SMTP Settings</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+          <div class="field" style="margin:0">
+            <label>SMTP Host</label>
+            <input id="smtp-host" placeholder="smtp.office365.com">
+          </div>
+          <div class="field" style="margin:0">
+            <label>SMTP Port</label>
+            <input id="smtp-port" placeholder="587" type="number">
+          </div>
+          <div class="field" style="margin:0">
+            <label>SMTP User (Login Email)</label>
+            <input id="smtp-user" placeholder="user@domain.com">
+          </div>
+          <div class="field" style="margin:0">
+            <label>SMTP Password</label>
+            <input id="smtp-password" type="password" placeholder="App password or email password">
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;margin-top:.75rem;justify-content:flex-end">
+          <button class="btn btn-primary btn-sm" onclick="saveSmtpConfig()">Save SMTP Settings</button>
+        </div>
+        <p style="color:var(--text-muted);font-size:.8rem;margin-top:.5rem">
+          Configure the SMTP server for sending email alerts. For Office 365, use smtp.office365.com port 587.
+        </p>
+      </div>
+
+      <!-- Alert Rules -->
+      <div class="card" style="margin-top:1rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+          <h3 style="margin:0">Alert Rules</h3>
+          <button class="btn btn-primary btn-sm" onclick="showAddAlertModal()">+ Add Alert</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Schedule</th><th>Recipients</th><th>Enabled</th><th>Last Sent</th><th>Actions</th></tr></thead>
+            <tbody id="alert-rules-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== REPORTS ========== -->
+    <div id="reports-view" class="view">
+      <h2 style="margin-bottom:1rem">Report</h2>
+      <div class="card">
+        <h3 style="margin-bottom:.75rem">Weekly PPP Report</h3>
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+          <div class="field" style="margin:0">
+            <label for="report-week-from" style="font-size:.85rem;font-weight:600">Week Starting (Monday)</label>
+            <input type="date" id="report-week-from" style="padding:.4rem .6rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg)">
+          </div>
+          <div class="field" style="margin:0">
+            <label for="report-week-to" style="font-size:.85rem;font-weight:600">Week Ending (Friday)</label>
+            <input type="date" id="report-week-to" style="padding:.4rem .6rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg)">
+          </div>
+          <button class="btn btn-primary" onclick="generateWeeklyPPPReport()" style="align-self:flex-end">
+            📄 Generate PDF
+          </button>
+        </div>
+        <p style="color:var(--text-muted);font-size:.8rem;margin-top:.5rem">Generates a PDF summary of all general users' Weekly PPP entries for the selected week, including submission metrics.</p>
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-bottom:.75rem">Monthly Objective Report</h3>
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+          <div class="field" style="margin:0">
+            <label for="report-obj-month" style="font-size:.85rem;font-weight:600">Month / Year</label>
+            <select id="report-obj-month" style="padding:.4rem .6rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);min-width:160px"></select>
+          </div>
+          <button class="btn btn-primary" onclick="generateMonthlyObjReport()" style="align-self:flex-end">
+            📄 Generate PDF
+          </button>
+        </div>
+        <p style="color:var(--text-muted);font-size:.8rem;margin-top:.5rem">Generates a PDF showing each general user's monthly objectives for the selected month.</p>
+      </div>
+    </div>
+
+    <!-- ========== ACCOUNT MANAGEMENT ========== -->
+    <div id="accounts-view" class="view">
+      <h2 style="margin-bottom:1rem">Account Management</h2>
+      <div style="margin-bottom:1rem">
+        <button class="btn btn-primary btn-sm" onclick="showAddUser()">+ Add User</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>PIN</th><th>Role</th><th>Admin</th><th>Last Modified</th><th>Actions</th></tr></thead>
+            <tbody id="accounts-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1.5rem">
+        <h3 style="margin-bottom:.75rem">Database Backup & Restore</h3>
+        <div id="backup-status" style="margin-bottom:.75rem;font-size:.85rem;color:var(--text-muted)">Loading status...</div>
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="downloadBackup()">⬇ Download Backup (JSON)</button>
+          <label class="btn btn-outline" style="cursor:pointer">
+            ⬆ Restore from Backup
+            <input type="file" accept=".json" onchange="restoreBackup(event)" style="display:none">
+          </label>
+        </div>
+        <p style="color:var(--text-muted);font-size:.8rem;margin-top:.5rem">
+          Backup exports all users, config, entries, and objectives as a JSON file. Restore merges data without deleting existing records.
+        </p>
+      </div>
     </div>
   </div>
+</div>
 
-  <script>
-    // ===== Config =====
-    const MEMBERS = ['Jimmy','James','Riot','Terry','Timothy'];
-    const REVIEWER = 'Philip (Reviewer)';
-    const SITES = ['MC6','PWH','KWH','UCH','CHT','SMT','TKO'];
-    const months = ['July 2026','August 2026','September 2026','October 2026','November 2026','December 2026','January 2027','February 2027','March 2027','April 2027','May 2027','June 2027'];
+<!-- ========== MODALS ========== -->
+<div id="modal-overlay" class="modal-overlay" style="display:none" onclick="closeModal(event)">
+  <div class="modal" id="modal-content" onclick="event.stopPropagation()"></div>
+</div>
 
-    // July 2026 seed objectives — one box per person. August 2026 onwards intentionally blank.
-    const seedObjectives = [
-      { member:'Jimmy',   month:'July 2026', text:'Develop MC6 Unified Network\nPWH POC for Meal Card Delivery platform\nAttendance & Job Dispatch platform' },
-      { member:'James',   month:'July 2026', text:'PWH Human Robot Integration platform\nTD ACRS Upgrade (iTimex Replacement)' },
-      { member:'Terry',   month:'July 2026', text:'PWH IoT Management platform (Live)' },
-      { member:'Timothy', month:'July 2026', text:'HA CMMS Demo with Data to showcase' },
-      { member:'Riot',    month:'July 2026', text:'HA CMMS Purchase Orders & QPOMS Implementation' }
-    ];
+<script src="https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<script>
+// ==================== STATE ====================
+const API = 'https://adg-it-tracker-api.zeabur.app/api';
 
-    // Default PINs — each user should change after first sign-in.
-    const DEFAULT_PINS = {
-      'Jimmy':'1111', 'James':'1111', 'Riot':'1111', 'Terry':'1111', 'Timothy':'1111',
-      'Philip (Reviewer)':'9999'
-    };
+let token = localStorage.getItem('token') || '';
+let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+let siteOptions = [];
+let allUsers = [];
 
-    const state = {
-      filter:'', wfilter:'', records:[], objectives:[], weekly:[],
-      editingObjectiveId:null, currentWeekEnding:'',
-      activeForm:'daily',
-      currentUser: null,         // who is signed in (string)
-      isReviewer: false          // true if Philip
-    };
+// ==================== API HELPER ====================
+async function api(path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(API + path, { ...opts, headers });
+  if (res.status === 401) {
+    doSignOut();
+    throw new Error('Session expired');
+  }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
 
-    const today = new Date().toISOString().slice(0,10);
-
-    // ===== Element refs =====
-    const els = {
-      apiUrl: byId('apiUrl'),
-      date: byId('date'), site: byId('site'),
-      tasks: byId('tasks'), deliverables: byId('deliverables'),
-      submitBtn: byId('submitBtn'), formStatus: byId('formStatus'),
-      totalRecords: byId('totalRecords'), latestDate: byId('latestDate'), membersReporting: byId('membersReporting'),
-      records: byId('records'), refreshBtn: byId('refreshBtn'), themeToggle: byId('themeToggle'),
-
-      objectiveText: byId('objectiveText'),
-      objectiveMonth: byId('objectiveMonth'), saveObjectiveBtn: byId('saveObjectiveBtn'),
-      objectiveList: byId('objectiveList'),
-      resetJulyBtn: byId('resetJulyBtn'),
-
-      wWeekEnding: byId('wWeekEnding'),
-      wProgress: byId('wProgress'), wPlans: byId('wPlans'), wProblems: byId('wProblems'),
-      submitWeeklyBtn: byId('submitWeeklyBtn'),
-      weeklyList: byId('weeklyList'), weekLabel: byId('weekLabel'),
-      mSubmitted: byId('mSubmitted'), mOutstanding: byId('mOutstanding'),
-      mBlocked: byId('mBlocked'), mDaily: byId('mDaily'),
-      siteCoverage: byId('siteCoverage'),
-      dashWeekEnding: byId('dashWeekEnding'),
-
-      mondayReport: byId('mondayReport'),
-      mondayReportSubtitle: byId('mondayReportSubtitle'),
-      printReportBtn: byId('printReportBtn'),
-
-      // Sign-in
-      signInBlock: byId('signInBlock'),
-      loginMember: byId('loginMember'),
-      loginPin: byId('loginPin'),
-      signInBtn: byId('signInBtn'),
-      signInStatus: byId('signInStatus'),
-      whoLabel: byId('whoLabel'),
-      signOutBtn: byId('signOutBtn'),
-      pinBlock: byId('pinBlock'),
-      changePinBtn: byId('changePinBtn')
-    };
-    function byId(id){return document.getElementById(id)}
-
-    // Initial values
-    els.date.value = today;
-    state.currentWeekEnding = nearestFriday(new Date());
-    els.wWeekEnding.value = state.currentWeekEnding;
-    els.dashWeekEnding.value = state.currentWeekEnding;
-    els.objectiveMonth.innerHTML = months.map(m => `<option>${m}</option>`).join('');
-    els.weekLabel.textContent = 'Week ending ' + state.currentWeekEnding;
-    els.mondayReportSubtitle.textContent = 'All members — week ending ' + state.currentWeekEnding;
-
-    // Theme
-    const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-    els.themeToggle.textContent = prefersDark ? 'Light mode' : 'Dark mode';
-    els.themeToggle.addEventListener('click', () => {
-      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      els.themeToggle.textContent = next === 'dark' ? 'Light mode' : 'Dark mode';
+// ==================== AUTH ====================
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pin = document.getElementById('login-pin').value.trim();
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  if (!email || !pin) {
+    errEl.textContent = 'Please enter email and PIN.';
+    errEl.style.display = 'block';
+    return;
+  }
+  try {
+    const data = await api('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, pin })
     });
+    token = data.token;
+    currentUser = data.user;
+    localStorage.setItem('token', token);
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    enterApp();
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }
+}
 
-    // Persisted API URL — default to the deployed Zeabur backend
-    const DEFAULT_API_URL = 'https://adg-it-tracker-api.zeabur.app';
-    els.apiUrl.value = localStorage.getItem('apiUrl') || DEFAULT_API_URL;
-    if (!localStorage.getItem('apiUrl')) localStorage.setItem('apiUrl', DEFAULT_API_URL);
-    els.apiUrl.addEventListener('input', () => localStorage.setItem('apiUrl', els.apiUrl.value));
+function doSignOut() {
+  token = '';
+  currentUser = null;
+  localStorage.removeItem('token');
+  localStorage.removeItem('currentUser');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-view').style.display = 'flex';
+  document.getElementById('login-pin').value = '';
+}
 
-    // ===== Helpers =====
-    function escapeHtml(str=''){return String(str).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-    function normalizeObjectiveText(text) { return text.split('\n').map(s => s.trim()).filter(Boolean).slice(0,5).join('\n'); }
-    function nearestFriday(d) {
-      const dt = new Date(d);
-      const day = dt.getDay();
-      const delta = day === 0 ? -2 : 5 - day;
-      dt.setDate(dt.getDate() + delta);
-      return dt.toISOString().slice(0,10);
-    }
-    function weekRangeForFriday(fridayStr) {
-      const fri = new Date(fridayStr);
-      const mon = new Date(fri); mon.setDate(fri.getDate() - 4);
-      const sun = new Date(fri); sun.setDate(fri.getDate() + 2);
-      const fmt = d => d.toISOString().slice(0,10);
-      return { start: fmt(mon), end: fmt(sun) };
-    }
-    function inThisWeek(dateStr, fridayStr) {
-      const { start, end } = weekRangeForFriday(fridayStr);
-      return dateStr >= start && dateStr <= end;
-    }
+document.getElementById('login-pin').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+document.getElementById('login-email').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('login-pin').focus();
+});
 
-    // ===== Auth (PIN-based, local) =====
-    function loadPins() {
-      try { return { ...DEFAULT_PINS, ...JSON.parse(localStorage.getItem('pins_v1') || '{}') }; }
-      catch { return { ...DEFAULT_PINS }; }
-    }
-    function savePins(map) { localStorage.setItem('pins_v1', JSON.stringify(map)); }
-    function restoreSession() {
-      const name = localStorage.getItem('currentUser');
-      if (name && (MEMBERS.includes(name) || name === REVIEWER)) applySignIn(name);
-    }
-    function applySignIn(name) {
-      state.currentUser = name;
-      state.isReviewer = (name === REVIEWER);
-      els.signInBlock.style.display = 'none';
-      els.signOutBtn.style.display = '';
-      els.pinBlock.style.display = '';
-      els.whoLabel.innerHTML = 'Signed in as <strong>' + escapeHtml(name) + '</strong>' + (state.isReviewer ? ' · Reviewer' : '');
-      // Lock entry forms to this user (reviewer cannot submit entries)
-      const canSubmitEntries = !state.isReviewer;
-      els.submitBtn.disabled = !canSubmitEntries;
-      els.submitWeeklyBtn.disabled = !canSubmitEntries;
-      els.saveObjectiveBtn.disabled = !canSubmitEntries;
-      els.formStatus.textContent = state.isReviewer
-        ? 'Reviewer mode — read-only entries; full visibility of all reports.'
-        : 'Signed in. You can submit your own daily and weekly entries.';
-      localStorage.setItem('currentUser', name);
-      renderAll();
-    }
-    function signOut() {
-      state.currentUser = null; state.isReviewer = false;
-      localStorage.removeItem('currentUser');
-      els.signInBlock.style.display = '';
-      els.signOutBtn.style.display = 'none';
-      els.pinBlock.style.display = 'none';
-      els.whoLabel.textContent = 'Not signed in';
-      els.submitBtn.disabled = true; els.submitWeeklyBtn.disabled = true; els.saveObjectiveBtn.disabled = true;
-      els.formStatus.textContent = 'Sign in to submit entries.';
-      renderAll();
-    }
-    els.signInBtn.addEventListener('click', () => {
-      const name = els.loginMember.value;
-      const pin = els.loginPin.value.trim();
-      if (!name) { els.signInStatus.textContent = 'Please select your name.'; return; }
-      if (!pin)  { els.signInStatus.textContent = 'Please enter your PIN.'; return; }
-      const pins = loadPins();
-      if (pins[name] !== pin) { els.signInStatus.innerHTML = '<span class="warn-text">Incorrect PIN.</span>'; return; }
-      els.signInStatus.textContent = '';
-      els.loginPin.value = '';
-      applySignIn(name);
+// ==================== APP INIT ====================
+async function enterApp() {
+  document.getElementById('login-view').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('user-display').textContent = currentUser.name;
+  // Show Report tab for Reviewer role or admin users
+  const showReport = (currentUser.role === 'Reviewer' || currentUser.admin);
+  document.getElementById('nav-reports').style.display = showReport ? '' : 'none';
+  // Show Account Management tab for admin users
+  document.getElementById('nav-accounts').style.display = currentUser.admin ? '' : 'none';
+  // Show System Config tab for admin users only
+  document.getElementById('nav-config').style.display = currentUser.admin ? '' : 'none';
+  await loadConfig();
+  await loadUsers();
+  switchView('dashboard');
+}
+
+async function loadConfig() {
+  try {
+    const data = await api('/config');
+    siteOptions = data.config.filter(c => c.type === 'Site').sort((a, b) => a.sort_order - b.sort_order);
+    renderSiteCheckboxes('daily-sites');
+    renderSiteCheckboxes('weekly-sites');
+  } catch (e) {
+    console.error('Failed to load config:', e);
+  }
+}
+
+async function loadUsers() {
+  try {
+    const data = await api('/auth/users');
+    allUsers = data.users;
+    const sel = document.getElementById('dash-user-filter');
+    sel.innerHTML = '<option value="">All Users</option>';
+    allUsers.filter(u => u.role === 'General').forEach(u => {
+      sel.innerHTML += '<option value="' + u.id + '">' + esc(u.name) + '</option>';
     });
-    els.signOutBtn.addEventListener('click', signOut);
-    els.changePinBtn.addEventListener('click', () => {
-      if (!state.currentUser) return;
-      const cur = prompt('Enter your current PIN:');
-      if (cur === null) return;
-      const pins = loadPins();
-      if (pins[state.currentUser] !== cur) { alert('Current PIN is incorrect.'); return; }
-      const next = prompt('Enter your new PIN (4–8 digits):');
-      if (!next || !/^\d{4,8}$/.test(next)) { alert('PIN must be 4–8 digits.'); return; }
-      const confirmPin = prompt('Re-enter your new PIN:');
-      if (next !== confirmPin) { alert('PINs do not match.'); return; }
-      pins[state.currentUser] = next;
-      savePins(pins);
-      alert('PIN updated.');
-    });
+  } catch (e) {
+    console.error('Failed to load users:', e);
+  }
+}
 
-    // ===== API with localStorage fallback for /weekly =====
-    async function api(path, options={}) {
-      const base = els.apiUrl.value.trim().replace(/\/$/, '');
-      if (!base) throw new Error('Please enter the online API URL first.');
-      const res = await fetch(base + path, { headers:{'Content-Type':'application/json'}, ...options });
-      if (!res.ok) throw new Error('API error: ' + res.status);
-      return await res.json();
+function renderSiteCheckboxes(containerId) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = siteOptions.map(s =>
+    '<label><input type="checkbox" value="' + esc(s.value) + '"> ' + esc(s.display_value) + '</label>'
+  ).join('');
+}
+
+// ==================== NAVIGATION ====================
+document.querySelectorAll('#main-nav button').forEach(btn => {
+  btn.addEventListener('click', () => switchView(btn.dataset.view));
+});
+
+function switchView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('#main-nav button').forEach(b => b.classList.remove('active'));
+  const view = document.getElementById(name + '-view');
+  const btn = document.querySelector('#main-nav button[data-view="' + name + '"]');
+  if (view) view.classList.add('active');
+  if (btn) btn.classList.add('active');
+
+  if (name === 'dashboard') loadDashboard();
+  else if (name === 'daily') { setDefaultDailyDate(); loadDailyWeek(); }
+  else if (name === 'weekly') { setDefaultWeeklyDate(); loadWeeklyWeek(); }
+  else if (name === 'monthly') { initMonthSelectors(); loadObjectives(); }
+  else if (name === 'config') { loadConfigView(); loadEmailAlerts(); }
+  else if (name === 'reports') initReportWeek();
+  else if (name === 'accounts') loadAccounts();
+}
+
+// ==================== USER MENU ====================
+function toggleUserMenu() {
+  document.getElementById('user-dropdown').classList.toggle('show');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.user-menu'))
+    document.getElementById('user-dropdown').classList.remove('show');
+});
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? '' : 'dark');
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+}
+
+// ==================== DATE HELPERS ====================
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function getMonday(d) {
+  const dt = new Date(d);
+  const day = dt.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  dt.setDate(dt.getDate() + diff);
+  return dt.toISOString().slice(0, 10);
+}
+
+function getFriday(d) {
+  const dt = new Date(d);
+  const day = dt.getDay();
+  const diff = day === 0 ? -2 : 5 - day;
+  dt.setDate(dt.getDate() + diff);
+  return dt.toISOString().slice(0, 10);
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  return dt.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function setDefaultDailyDate() {
+  document.getElementById('daily-date').value = today();
+}
+
+function setDefaultWeeklyDate() {
+  document.getElementById('weekly-date').value = getFriday(today());
+}
+
+// ==================== DASHBOARD ====================
+async function loadDashboard() {
+  const monday = document.getElementById('dash-date-from').value || getMonday(today());
+  const friday = document.getElementById('dash-date-to').value || getFriday(today());
+  document.getElementById('dash-date-from').value = monday;
+  document.getElementById('dash-date-to').value = friday;
+
+  try {
+    const data = await api('/dashboard/weekly-summary?monday=' + monday + '&friday=' + friday);
+    renderDashMetrics(data);
+    renderSubmissionChart(data);
+    renderOutsideChart(data);
+    renderDashEntries(data.dailyEntries);
+    loadDashMonthlyObjective();
+  } catch (e) {
+    console.error('Dashboard error:', e);
+    toast('Failed to load dashboard');
+  }
+}
+
+async function loadDashMonthlyObjective() {
+  const el = document.getElementById('dash-monthly-obj');
+  const card = document.getElementById('dash-monthly-obj-card');
+  try {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const data = await api('/objectives?year=' + year + '&month=' + month + '&user_id=' + currentUser.id);
+    const hasData = data.objectives && data.objectives.length > 0 && data.objectives[0].objectives && data.objectives[0].objectives.trim();
+    if (hasData) {
+      const lines = data.objectives[0].objectives;
+      card.style.border = '3px solid var(--success)';
+      el.innerHTML = '<div style="font-size:.8rem;color:var(--text-muted);margin-bottom:.4rem">' + monthNames[month - 1] + ' ' + year + '</div>' +
+        '<div style="color:var(--text);font-size:.9rem;white-space:pre-line;line-height:1.6">' +
+        lines.split('\n').map(function(line) {
+          return '<div style="padding:.2rem 0;border-bottom:1px solid var(--border)">• ' + esc(line) + '</div>';
+        }).join('') + '</div>';
+    } else {
+      card.style.border = '3px solid var(--danger)';
+      el.innerHTML = '<div style="font-size:.8rem;color:var(--text-muted);margin-bottom:.4rem">' + monthNames[month - 1] + ' ' + year + '</div>' +
+        '<span style="color:var(--danger);font-size:.85rem">No objectives set for this month. Please input your monthly objective.</span>';
     }
-    const LS_WEEKLY = 'weeklyPPP_v1';
-    function loadLocalWeekly(){ try { return JSON.parse(localStorage.getItem(LS_WEEKLY) || '[]'); } catch { return []; } }
-    function saveLocalWeekly(arr){ localStorage.setItem(LS_WEEKLY, JSON.stringify(arr)); }
-    async function fetchWeekly() {
-      try { const data = await api('/weekly'); return data.weekly || []; }
-      catch { return loadLocalWeekly(); }
-    }
-    async function saveWeekly(record) {
-      try {
-        await api('/weekly', { method:'POST', body: JSON.stringify(record) });
-      } catch {
-        const arr = loadLocalWeekly();
-        const idx = arr.findIndex(w => w.member === record.member && w.weekEnding === record.weekEnding);
-        const stamped = { ...record, lastUpdatedAt: new Date().toISOString(), id: (idx>=0 ? arr[idx].id : 'local-'+Date.now()) };
-        if (idx >= 0) arr[idx] = stamped; else arr.push(stamped);
-        saveLocalWeekly(arr);
+  } catch (e) {
+    card.style.border = '3px solid var(--danger)';
+    el.innerHTML = '<span style="color:var(--danger);font-size:.85rem">Failed to load objectives.</span>';
+  }
+}
+
+let dashBlockages = []; // store blockage entries for modal
+let dashDailyEntries = []; // store daily entries for leave tooltip
+
+function renderDashMetrics(data) {
+  const pu = data.perUser || {};
+  let totalSubmitted = 0, totalExpected = 0;
+  Object.values(pu).forEach(v => {
+    totalSubmitted += v.submitted;
+    totalExpected += v.total;
+  });
+
+  // Collect blockage entries from weekly data
+  dashBlockages = data.weeklyBlockages || [];
+  dashDailyEntries = data.dailyEntries || [];
+
+  const blockCount = data.totalBlockages || 0;
+  const blockStyle = blockCount > 0 ? 'cursor:pointer' : '';
+  const blockClick = blockCount > 0 ? ' onclick="showBlockageDetails()"' : '';
+
+  document.getElementById('dash-metrics').innerHTML =
+    '<div class="metric" id="dash-monthly-obj-card" style="text-align:left;padding:.75rem 1rem"><div class="label" style="text-align:center;margin-bottom:.3rem">Monthly Objective</div><div id="dash-monthly-obj" style="font-size:.85rem;color:var(--text-muted)">Loading...</div></div>' +
+    '<div class="metric green"><div class="label">Submitted</div><div class="value">' + totalSubmitted + '</div></div>' +
+    '<div class="metric red"><div class="label">Non-Submitted</div><div class="value">' + (totalExpected - totalSubmitted) + '</div></div>' +
+    '<div class="metric blue" style="' + blockStyle + '"' + blockClick + '><div class="label">Total Blockages</div><div class="value">' + blockCount + '</div></div>' +
+    '<div class="metric"><div class="label">Total Daily Entries</div><div class="value">' + (data.dailyEntries || []).length + '</div></div>';
+}
+
+function showBlockageDetails() {
+  if (dashBlockages.length === 0) return;
+  const rows = dashBlockages.map(e =>
+    '<tr><td>' + esc(e.user_name) + '</td><td>' + esc(e.blockage) + '</td></tr>'
+  ).join('');
+  showModal(
+    '<h2>Blockage Details</h2>' +
+    '<div class="tbl-wrap" style="max-height:400px;overflow-y:auto"><table>' +
+    '<thead><tr><th>User</th><th>Blockage Description</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody>' +
+    '</table></div>' +
+    '<div class="actions" style="margin-top:1rem"><button class="btn btn-primary" onclick="closeModal()">Close</button></div>'
+  );
+}
+
+function renderSubmissionChart(data) {
+  const pu = data.perUser || {};
+  const el = document.getElementById('dash-submission-chart');
+  // Semi-circle gauge: arc from 180deg to 0deg (bottom half hidden)
+  const R = 40, halfC = Math.PI * R; // half circumference for semi-circle
+  el.innerHTML = '<div class="gauge-grid">' + Object.entries(pu).map(([name, v]) => {
+    const pct = v.total > 0 ? v.submitted / v.total : 0;
+    const nonSub = v.total - v.submitted;
+    const greenArc = halfC * pct;
+    const gap = halfC - greenArc;
+    return '<div class="gauge-item">' +
+      '<div class="gauge-wrap">' +
+        '<svg viewBox="0 0 100 55" width="100" height="55">' +
+          // Red background arc (full semi-circle)
+          '<path d="M 10 50 A ' + R + ' ' + R + ' 0 0 1 90 50" fill="none" stroke="var(--danger)" stroke-width="8" stroke-linecap="round"/>' +
+          // Green foreground arc
+          (greenArc > 0 ? '<path d="M 10 50 A ' + R + ' ' + R + ' 0 0 1 90 50" fill="none" stroke="var(--success)" stroke-width="8" stroke-linecap="round" stroke-dasharray="' + greenArc + ' ' + (halfC + 10) + '"/>' : '') +
+        '</svg>' +
+        '<div class="gauge-label"><span style="color:var(--success)">' + v.submitted + '</span>/<span style="color:var(--danger)">' + nonSub + '</span><small>sub/non</small></div>' +
+      '</div>' +
+      '<div class="gauge-name">' + esc(name) + '</div>' +
+    '</div>';
+  }).join('') + '</div>';
+}
+
+function renderOutsideChart(data) {
+  const pu = data.perUser || {};
+  const el = document.getElementById('dash-outside-chart');
+  const maxDays = 5;
+  const entries = data.dailyEntries || dashDailyEntries || [];
+
+  // Build user name -> user_id map from data.users
+  const nameToId = {};
+  (data.users || []).forEach(u => { nameToId[u.name] = u.id; });
+
+  el.innerHTML = Object.entries(pu).map(([name, v]) => {
+    const outPct = Math.round((v.outsideDays / maxDays) * 100);
+    const lvPct = Math.round(((v.leaveDays || 0) / maxDays) * 100);
+    const leaveDays = v.leaveDays || 0;
+
+    // Build leave tooltip rows for this user
+    let tooltipHtml = '';
+    if (leaveDays > 0) {
+      const userId = nameToId[name];
+      const leaveEntries = entries.filter(e => e.user_id === userId && (e.leave_am || e.leave_pm));
+      if (leaveEntries.length > 0) {
+        const rows = leaveEntries.map(e =>
+          '<tr><td>' + esc(name) + '</td><td>' + fmtDate(e.date) + '</td>' +
+          '<td>' + (e.leave_am ? '✓' : '') + '</td>' +
+          '<td>' + (e.leave_pm ? '✓' : '') + '</td></tr>'
+        ).join('');
+        tooltipHtml = '<div class="leave-tooltip"><table>' +
+          '<thead><tr><th style="text-align:left">User</th><th>Date</th><th>AM</th><th>PM</th></tr></thead>' +
+          '<tbody>' + rows + '</tbody></table></div>';
       }
     }
 
-    // ===== Renderers =====
-    function renderObjectives() {
-      const selectedMonth = els.objectiveMonth.value || months[0];
+    const orangeBar = leaveDays > 0
+      ? '<div class="leave-bar-wrap" style="width:' + lvPct + '%;height:100%">' +
+          '<div style="width:100%;height:100%;background:var(--warning);border-radius:0 4px 4px 0;cursor:pointer"></div>' +
+          tooltipHtml +
+        '</div>'
+      : '';
 
-      // GUARANTEE: when viewing July 2026, always show a card for every member, falling back to the seed text if no real entry exists.
-      let list;
-      if (selectedMonth === 'July 2026') {
-        const seedByMember = new Map(seedObjectives.map(s => [s.member, s]));
-        const existingByMember = new Map(
-          state.objectives.filter(o => o.month === 'July 2026' && (o.text || '').trim()).map(o => [o.member, o])
+    return '<div class="bar-row">' +
+      '<span class="bar-label">' + esc(name) + '</span>' +
+      '<div class="bar-track">' +
+        '<div style="display:flex;height:100%">' +
+          '<div class="bar-fill" style="width:' + outPct + '%;border-radius:4px 0 0 4px"></div>' +
+          orangeBar +
+        '</div>' +
+      '</div>' +
+      '<span class="bar-val" style="width:auto;white-space:nowrap"><span style="color:var(--primary)">' + v.outsideDays + '</span>/<span style="color:var(--warning)">' + leaveDays + '</span></span>' +
+    '</div>';
+  }).join('');
+}
+
+function renderDashEntries(entries) {
+  const userId = document.getElementById('dash-user-filter').value;
+  let filtered = entries || [];
+  if (userId) filtered = filtered.filter(e => e.user_id === userId);
+
+  const body = document.getElementById('dash-entries-body');
+  if (filtered.length === 0) {
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No entries found</td></tr>';
+    return;
+  }
+  body.innerHTML = filtered.map(e => '<tr>' +
+    '<td>' + fmtDate(e.date) + '</td>' +
+    '<td>' + esc(e.user_name) + '</td>' +
+    '<td>' + (e.sites || []).map(s => esc(s)).join(', ') + '</td>' +
+    '<td>' + esc(truncate(e.description, 60)) + '</td>' +
+    '<td>' + leaveStr(e) + '</td>' +
+    '<td>' + statusBadge(e.status) + '</td>' +
+    '</tr>').join('');
+}
+
+document.getElementById('dash-user-filter').addEventListener('change', loadDashboard);
+
+// ==================== DAILY WORK ====================
+function initDailyFilters() {
+  const fromEl = document.getElementById('daily-filter-from');
+  const toEl = document.getElementById('daily-filter-to');
+  if (!fromEl.value) fromEl.value = getMonday(today());
+  if (!toEl.value) toEl.value = getFriday(today());
+}
+
+async function loadDailyWeek() {
+  initDailyFilters();
+  const monday = document.getElementById('daily-filter-from').value;
+  const friday = document.getElementById('daily-filter-to').value;
+  try {
+    const data = await api('/entries?event_type=Daily&user_id=' + currentUser.id +
+      '&date_from=' + monday + '&date_to=' + friday);
+    renderDailyWeek(data.entries);
+  } catch (e) {
+    console.error('Load daily week error:', e);
+  }
+}
+
+function renderDailyWeek(entries) {
+  const body = document.getElementById('daily-week-body');
+  if (!entries || entries.length === 0) {
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No entries this week</td></tr>';
+    return;
+  }
+  body.innerHTML = entries.map(e => '<tr>' +
+    '<td>' + fmtDate(e.date) + '</td>' +
+    '<td>' + (e.sites || []).map(s => esc(s)).join(', ') + '</td>' +
+    '<td>' + esc(truncate(e.description, 50)) + '</td>' +
+    '<td>' + leaveStr(e) + '</td>' +
+    '<td>' + statusBadge(e.status) + '</td>' +
+    '<td>' + (e.status === 'Reviewed' ? '<button class="btn btn-outline btn-sm" disabled style="opacity:.4;cursor:not-allowed">Edit</button>' : '<button class="btn btn-outline btn-sm" onclick="editDaily(\'' + e.id + '\',\'' + e.date + '\')">Edit</button>') + '</td>' +
+    '</tr>').join('');
+}
+
+async function editDaily(id, date) {
+  try {
+    const data = await api('/entries?event_type=Daily&user_id=' + currentUser.id +
+      '&date_from=' + date + '&date_to=' + date);
+    if (data.entries.length > 0) {
+      const e = data.entries[0];
+      document.getElementById('daily-date').value = e.date.slice(0, 10);
+      document.getElementById('daily-desc').value = e.description || '';
+      document.getElementById('daily-leave-am').checked = e.leave_am;
+      document.getElementById('daily-leave-pm').checked = e.leave_pm;
+      setSiteCheckboxes('daily-sites', e.sites || []);
+      dailyEditingDate = e.date.slice(0, 10);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  } catch (e) {
+    console.error('Edit daily error:', e);
+  }
+}
+
+let dailyEditingDate = null; // tracks which date is being edited
+
+async function saveDaily(status) {
+  const date = document.getElementById('daily-date').value;
+  if (!date) { toast('Please select a date'); return; }
+  const sites = getSiteCheckboxes('daily-sites');
+  const leave_am = document.getElementById('daily-leave-am').checked;
+  const leave_pm = document.getElementById('daily-leave-pm').checked;
+  const isFullDayLeave = leave_am && leave_pm;
+  if (sites.length === 0 && !isFullDayLeave) { toast('Please select at least one site'); return; }
+  const description = document.getElementById('daily-desc').value.trim();
+
+  // Check for duplicate entry (skip if user is editing that date)
+  if (dailyEditingDate !== date) {
+    try {
+      const existing = await api('/entries?event_type=Daily&user_id=' + currentUser.id +
+        '&date_from=' + date + '&date_to=' + date);
+      if (existing.entries && existing.entries.length > 0) {
+        showModal(
+          '<h2>Duplicate Entry</h2>' +
+          '<p style="margin-bottom:1rem">Record created already. Please edit the existing record instead of adding a new record.</p>' +
+          '<div class="actions"><button class="btn btn-primary" onclick="closeModal()">OK</button></div>'
         );
-        list = MEMBERS.map(m => {
-          const existing = existingByMember.get(m);
-          if (existing) return existing;
-          const seed = seedByMember.get(m);
-          return seed ? { id: 'seed-' + m, ...seed } : null;
-        }).filter(Boolean);
-      } else {
-        list = state.objectives.filter(o => o.month === selectedMonth)
-                               .sort((a,b) => MEMBERS.indexOf(a.member) - MEMBERS.indexOf(b.member));
-      }
-
-      if (!list.length) {
-        els.objectiveList.innerHTML = `<div class="empty">No objectives saved for ${escapeHtml(selectedMonth)} yet.</div>`;
         return;
       }
-      els.objectiveList.innerHTML = list.map(o => {
-        const canEdit = state.currentUser === o.member;
-        const editBtns = canEdit
-          ? `<button class="btn" onclick="startReviseObjective('${o.id}')">Revise</button>
-             <button class="btn warn" onclick="deleteObjective('${o.id}')">Delete</button>`
-          : `<span class="badge">Read-only</span>`;
-        return `
-          <article class="objective">
-            <div class="objective-head">
-              <div>
-                <h3>${escapeHtml(o.member)}</h3>
-                <div class="meta">${escapeHtml(o.month)}</div>
-              </div>
-              <div style="display:flex; gap:.5rem; flex-wrap:wrap;">${editBtns}</div>
-            </div>
-            <div class="obj-lines">${escapeHtml(o.text)}</div>
-          </article>`;
-      }).join('');
+    } catch (e) { /* proceed if check fails */ }
+  }
+
+  try {
+    await api('/entries', {
+      method: 'POST',
+      body: JSON.stringify({ date, event_type: 'Daily', sites, description, status, leave_am, leave_pm })
+    });
+    toast(status === 'Submitted' ? 'Daily entry submitted!' : 'Draft saved');
+    dailyEditingDate = null;
+    document.getElementById('daily-desc').value = '';
+    document.getElementById('daily-leave-am').checked = false;
+    document.getElementById('daily-leave-pm').checked = false;
+    clearSiteCheckboxes('daily-sites');
+    loadDailyWeek();
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+// ==================== WEEKLY PPP ====================
+async function loadWeeklyWeek() {
+  const limit = parseInt(document.getElementById('weekly-limit').value) || 0;
+  try {
+    // Fetch a wide range to support "All" — last 2 years
+    const dateTo = getFriday(today());
+    const dateFrom = '2020-01-01';
+    const data = await api('/entries?event_type=Weekly&user_id=' + currentUser.id +
+      '&date_from=' + dateFrom + '&date_to=' + dateTo);
+    let entries = data.entries || [];
+
+    // Check if current week has an entry
+    const thisFriday = getFriday(today());
+    const thisMonday = getMonday(today());
+    const hasCurrentWeek = entries.some(e => {
+      const d = e.date.slice(0, 10);
+      return d >= thisMonday && d <= thisFriday;
+    });
+
+    const card = document.getElementById('weekly-entries-card');
+    const warning = document.getElementById('weekly-warning');
+    if (hasCurrentWeek) {
+      card.style.borderColor = 'var(--success)';
+      card.style.borderWidth = '3px';
+      warning.style.display = 'none';
+    } else {
+      card.style.borderColor = 'var(--danger)';
+      card.style.borderWidth = '3px';
+      warning.textContent = "You haven't input this week's PPP. Please input it on or before this Friday.";
+      warning.style.display = 'inline';
     }
 
-    function renderRecords() {
-      const rows = state.filter ? state.records.filter(r => r.member === state.filter) : state.records;
-      els.totalRecords.textContent = String(state.records.length);
-      els.latestDate.textContent = state.records.length ? state.records[0].date : '—';
-      els.membersReporting.textContent = String(new Set(state.records.map(r => r.member)).size);
-      if (!rows.length) { els.records.innerHTML = '<div class="empty">No records loaded yet.</div>'; return; }
-      els.records.innerHTML = rows.map(r => `
-        <article class="entry">
-          <div class="entry-head">
-            <div>
-              <h3>${escapeHtml(r.member)}</h3>
-              <div class="meta">${escapeHtml(r.date)} · ${escapeHtml(r.site || '')}</div>
-            </div>
-          </div>
-          <div class="two-col">
-            <div><div class="meta"><strong>Work completed today</strong></div><div>${escapeHtml(r.tasks || '—').replace(/\n/g,'<br>')}</div></div>
-            <div><div class="meta"><strong>Deliverables / outcomes</strong></div><div>${escapeHtml(r.deliverables || '—').replace(/\n/g,'<br>')}</div></div>
-          </div>
-        </article>`).join('');
+    if (limit > 0) entries = entries.slice(0, limit);
+    renderWeeklyWeek(entries);
+  } catch (e) {
+    console.error('Load weekly error:', e);
+  }
+}
+
+function renderWeeklyWeek(entries) {
+  const body = document.getElementById('weekly-week-body');
+  if (!entries || entries.length === 0) {
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No PPP entries found</td></tr>';
+    return;
+  }
+  body.innerHTML = entries.map(e => '<tr>' +
+    '<td>' + fmtDate(e.date) + '</td>' +
+    '<td>' + esc(truncate(e.description, 40)) + '</td>' +
+    '<td' + (e.blockage && e.blockage.trim() ? ' style="background:rgba(220,53,69,.25);color:#ff6b6b"' : '') + '>' + esc(truncate(e.blockage, 30)) + '</td>' +
+    '<td>' + esc(truncate(e.next_week_target, 30)) + '</td>' +
+    '<td>' + statusBadge(e.status) + '</td>' +
+    '<td>' + (e.status === 'Reviewed' ? '<button class="btn btn-outline btn-sm" disabled style="opacity:.4;cursor:not-allowed">Edit</button>' : '<button class="btn btn-outline btn-sm" onclick="editWeekly(\'' + e.id + '\',\'' + e.date + '\')">Edit</button>') + '</td>' +
+    '</tr>').join('');
+}
+
+async function editWeekly(id, date) {
+  try {
+    const data = await api('/entries?event_type=Weekly&user_id=' + currentUser.id +
+      '&date_from=' + date + '&date_to=' + date);
+    if (data.entries.length > 0) {
+      const e = data.entries[0];
+      document.getElementById('weekly-date').value = e.date.slice(0, 10);
+      document.getElementById('weekly-desc').value = e.description || '';
+      document.getElementById('weekly-blockage').value = e.blockage || '';
+      const bTA = document.getElementById('weekly-blockage');
+      bTA.style.background = (e.blockage && e.blockage.trim()) ? 'rgba(220,53,69,.25)' : '';
+      bTA.style.color = (e.blockage && e.blockage.trim()) ? '#ff6b6b' : '';
+      document.getElementById('weekly-next').value = e.next_week_target || '';
+      weeklyEditingDate = e.date.slice(0, 10);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  } catch (e) {
+    console.error('Edit weekly error:', e);
+  }
+}
 
-    function statusForWeekly(w) {
-      const submitted = !!(w && (w.progress || w.plans));
-      const blocked = !!(w && w.problems && w.problems.trim());
-      if (!submitted) return { label:'Outstanding', cls:'red' };
-      if (blocked) return { label:'Blocked', cls:'red' };
-      return { label:'Submitted', cls:'green' };
-    }
+let weeklyEditingDate = null; // tracks which date is being edited
 
-    function renderWeekly() {
-      const fri = state.currentWeekEnding;
-      els.weekLabel.textContent = 'Week ending ' + fri;
-      els.mondayReportSubtitle.textContent = 'All members — week ending ' + fri;
+async function saveWeekly(status) {
+  const date = document.getElementById('weekly-date').value;
+  if (!date) { toast('Please select a week ending date'); return; }
+  const description = document.getElementById('weekly-desc').value.trim();
+  const blockage = document.getElementById('weekly-blockage').value.trim();
+  const next_week_target = document.getElementById('weekly-next').value.trim();
 
-      const cards = MEMBERS.map(m => {
-        const w = state.weekly.find(x => x.member === m && x.weekEnding === fri);
-        return { member: m, weekEnding: fri, record: w };
-      });
-
-      // Dashboard counts
-      let submitted = 0, outstanding = 0, blocked = 0;
-      cards.forEach(c => {
-        const s = statusForWeekly(c.record);
-        if (s.label === 'Submitted') submitted++;
-        else if (s.label === 'Blocked') { submitted++; blocked++; }
-        else outstanding++;
-      });
-      els.mSubmitted.textContent = submitted;
-      els.mOutstanding.textContent = outstanding;
-      els.mBlocked.textContent = blocked;
-
-      // Daily entries + site coverage
-      const dailyThisWeek = state.records.filter(r => inThisWeek(r.date, fri));
-      els.mDaily.textContent = dailyThisWeek.length;
-      const coveredSites = new Set(dailyThisWeek.map(r => r.site));
-      els.siteCoverage.innerHTML = SITES.map(s => {
-        const covered = coveredSites.has(s);
-        return `<div class="site-chip ${covered ? 'covered' : ''}"><span>${s}</span><span class="dot"></span></div>`;
-      }).join('');
-
-      // Per-member cards (working view)
-      const visible = state.wfilter ? cards.filter(c => c.member === state.wfilter) : cards;
-      if (!visible.length) {
-        els.weeklyList.innerHTML = '<div class="empty">No weekly cards to show.</div>';
-      } else {
-        els.weeklyList.innerHTML = visible.map(c => {
-          const s = statusForWeekly(c.record);
-          const r = c.record || {};
-          const blockedBadge = (s.label === 'Submitted' && r.problems && r.problems.trim())
-            ? '<span class="badge red" style="margin-left:.4rem">Blocked</span>' : '';
-          const lastUpd = r.lastUpdatedAt ? new Date(r.lastUpdatedAt).toLocaleString() : '—';
-          const canEdit = state.currentUser === c.member;
-          const editBtn = canEdit
-            ? `<button class="btn" onclick="prefillWeekly('${escapeHtml(c.member)}','${escapeHtml(c.weekEnding)}')">Edit / Submit</button>`
-            : `<span class="badge">Read-only</span>`;
-          return `
-            <article class="weekly">
-              <div class="weekly-head">
-                <div>
-                  <h3>${escapeHtml(c.member)} <span class="badge ${s.cls}">${s.label}</span>${blockedBadge}</h3>
-                  <div class="meta">Week ending ${escapeHtml(c.weekEnding)} · Last updated ${escapeHtml(lastUpd)}</div>
-                </div>
-                <div>${editBtn}</div>
-              </div>
-              ${r.progress || r.plans || r.problems ? `
-                <div class="three-col" style="margin-top:var(--space-3)">
-                  <div class="ppp-block"><strong>Progress</strong><div>${escapeHtml(r.progress || '—').replace(/\n/g,'<br>')}</div></div>
-                  <div class="ppp-block"><strong>Plans</strong><div>${escapeHtml(r.plans || '—').replace(/\n/g,'<br>')}</div></div>
-                  <div class="ppp-block"><strong>Problems</strong><div>${escapeHtml(r.problems || '—').replace(/\n/g,'<br>')}</div></div>
-                </div>` : `<div class="meta" style="margin-top:var(--space-3)">No weekly PPP submitted yet.</div>`}
-            </article>`;
-        }).join('');
+  // Check for duplicate entry (skip if user is editing that date)
+  if (weeklyEditingDate !== date) {
+    try {
+      const existing = await api('/entries?event_type=Weekly&user_id=' + currentUser.id +
+        '&date_from=' + date + '&date_to=' + date);
+      if (existing.entries && existing.entries.length > 0) {
+        showModal(
+          '<h2>Duplicate Entry</h2>' +
+          '<p style="margin-bottom:1rem">Record created already. Please edit the existing record instead of adding a new record.</p>' +
+          '<div class="actions"><button class="btn btn-primary" onclick="closeModal()">OK</button></div>'
+        );
+        return;
       }
+    } catch (e) { /* proceed if check fails */ }
+  }
 
-      renderMondayReport(cards);
-    }
+  try {
+    await api('/entries', {
+      method: 'POST',
+      body: JSON.stringify({ date, event_type: 'Weekly', sites: [], description, blockage, next_week_target, status, leave_am: false, leave_pm: false })
+    });
+    toast(status === 'Submitted' ? 'Weekly PPP submitted!' : 'Draft saved');
+    weeklyEditingDate = null;
+    document.getElementById('weekly-desc').value = '';
+    document.getElementById('weekly-blockage').value = '';
+    document.getElementById('weekly-blockage').style.background = '';
+    document.getElementById('weekly-blockage').style.color = '';
+    document.getElementById('weekly-next').value = '';
+    loadWeeklyWeek();
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
 
-    function renderMondayReport(cards) {
-      // Consolidated single report — Progress / Plans / Problems for all members
-      const fri = state.currentWeekEnding;
-      const generated = new Date().toLocaleString();
-      const headerBlock = `
-        <div style="margin-bottom:var(--space-4)">
-          <div style="font-weight:700">IT Team — Weekly PPP Consolidated Report</div>
-          <div class="meta">Week ending ${escapeHtml(fri)} · Generated ${escapeHtml(generated)}</div>
-        </div>`;
+// ==================== MONTHLY OBJECTIVES ====================
+function initMonthSelectors() {
+  const monthSel = document.getElementById('obj-month');
+  const yearSel = document.getElementById('obj-year');
+  const now = new Date();
 
-      // Summary line
-      let submitted = 0, outstanding = 0, blocked = 0;
-      cards.forEach(c => {
-        const s = statusForWeekly(c.record);
-        if (s.label === 'Submitted') submitted++;
-        else if (s.label === 'Blocked') { submitted++; blocked++; }
-        else outstanding++;
-      });
-      const summary = `
-        <div style="margin-bottom:var(--space-4)">
-          <span class="badge green">Submitted: ${submitted}</span>
-          <span class="badge red" style="margin-left:.4rem">Outstanding: ${outstanding}</span>
-          <span class="badge red" style="margin-left:.4rem">Blocked: ${blocked}</span>
-        </div>`;
+  if (monthSel.options.length <= 1) {
+    monthSel.innerHTML = ['January','February','March','April','May','June',
+      'July','August','September','October','November','December']
+      .map((m, i) => '<option value="' + (i + 1) + '">' + m + '</option>').join('');
+    monthSel.value = now.getMonth() + 1;
+  }
+  if (yearSel.options.length <= 1) {
+    const y = now.getFullYear();
+    yearSel.innerHTML = [y - 1, y, y + 1]
+      .map(yr => '<option value="' + yr + '">' + yr + '</option>').join('');
+    yearSel.value = y;
+  }
+}
 
-      const sections = cards.map(c => {
-        const s = statusForWeekly(c.record);
-        const r = c.record || {};
-        const blockedBadge = (s.label === 'Submitted' && r.problems && r.problems.trim())
-          ? '<span class="badge red" style="margin-left:.4rem">Blocked</span>' : '';
-        return `
-          <article class="weekly" style="margin-bottom:var(--space-4)">
-            <div class="weekly-head">
-              <div>
-                <h3>${escapeHtml(c.member)} <span class="badge ${s.cls}">${s.label}</span>${blockedBadge}</h3>
-                <div class="meta">Week ending ${escapeHtml(c.weekEnding)}</div>
-              </div>
-            </div>
-            <div class="three-col" style="margin-top:var(--space-3)">
-              <div class="ppp-block"><strong>Progress</strong><div>${escapeHtml(r.progress || '—').replace(/\n/g,'<br>')}</div></div>
-              <div class="ppp-block"><strong>Plans</strong><div>${escapeHtml(r.plans || '—').replace(/\n/g,'<br>')}</div></div>
-              <div class="ppp-block"><strong>Problems</strong><div>${escapeHtml(r.problems || '—').replace(/\n/g,'<br>')}</div></div>
-            </div>
-          </article>`;
-      }).join('');
+async function loadObjectives() {
+  const year = document.getElementById('obj-year').value;
+  const month = document.getElementById('obj-month').value;
+  try {
+    const data = await api('/objectives?year=' + year + '&month=' + month);
+    renderObjectives(data.objectives, parseInt(year), parseInt(month));
+  } catch (e) {
+    console.error('Load objectives error:', e);
+  }
+}
 
-      els.mondayReport.innerHTML = headerBlock + summary + sections;
-    }
+function renderObjectives(objectives, year, month) {
+  const container = document.getElementById('obj-cards');
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const isPast = (year < currentYear) || (year === currentYear && month < currentMonth);
+  const isReviewer = currentUser.role === 'Reviewer';
 
-    function renderAll() { renderRecords(); renderObjectives(); renderWeekly(); }
+  const generalUsers = allUsers.filter(u => u.role === 'General');
+  container.innerHTML = generalUsers.map(u => {
+    const obj = objectives.find(o => o.user_id === u.id);
+    const text = obj ? obj.objectives : '';
+    const isAdmin = currentUser.admin;
+    const canEdit = (u.id === currentUser.id || isReviewer || isAdmin) && (!isPast || isReviewer || isAdmin);
+    const disabledClass = canEdit ? '' : ' disabled';
+    return '<div class="card obj-card' + disabledClass + '">' +
+      '<h3>' + esc(u.name) + '</h3>' +
+      '<div class="field obj-lines">' +
+      '<textarea id="obj-' + u.id + '" rows="5" maxlength="500" ' +
+      (canEdit ? '' : 'disabled') +
+      ' placeholder="Enter up to 5 lines of objectives...">' + esc(text) + '</textarea>' +
+      '</div>' +
+      (canEdit
+        ? '<button class="btn btn-primary btn-sm" onclick="saveObjective(\'' + u.id + '\',' + year + ',' + month + ')">Save</button>'
+        : '<span style="font-size:.8rem;color:var(--text-muted)">' + (isPast ? 'Locked (past month)' : 'View only') + '</span>'
+      ) + '</div>';
+  }).join('');
+}
 
-    // ===== Actions =====
-    async function loadAll() {
+async function saveObjective(userId, year, month) {
+  const text = document.getElementById('obj-' + userId).value.trim();
+  const lines = text.split('\n').slice(0, 5).join('\n');
+  try {
+    await api('/objectives', {
+      method: 'POST',
+      body: JSON.stringify({ year, month, objectives: lines, user_id: userId })
+    });
+    toast('Objective saved');
+    loadObjectives(); // reload to confirm saved data
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+// ==================== SYSTEM CONFIG ====================
+let allConfigData = []; // store all config data for modal use
+
+async function loadConfigView() {
+  try {
+    const data = await api('/config');
+    allConfigData = data.config;
+    renderConfigTypeList(data.config);
+  } catch (e) {
+    console.error('Load config error:', e);
+  }
+}
+
+function renderConfigTypeList(configs) {
+  const types = {};
+  configs.forEach(c => {
+    if (c.type === 'SMTP') return; // SMTP managed via Email Alert section
+    if (!types[c.type]) types[c.type] = 0;
+    types[c.type]++;
+  });
+  const el = document.getElementById('config-type-body');
+  el.innerHTML = Object.entries(types).map(([type, count]) =>
+    '<tr>' +
+    '<td><strong>' + esc(type) + '</strong> <span style="color:var(--text-muted);font-size:.8rem">(' + count + ' items)</span></td>' +
+    '<td><button class="btn btn-outline btn-sm" onclick="showConfigTypeModal(\'' + esc(type) + '\')">Edit</button></td>' +
+    '</tr>'
+  ).join('');
+}
+
+function showConfigTypeModal(type) {
+  const items = allConfigData.filter(c => c.type === type).sort((a, b) => a.sort_order - b.sort_order);
+  const rows = items.map(c =>
+    '<tr id="cfg-row-' + c.id + '">' +
+    '<td><input class="cfg-val" data-id="' + c.id + '" value="' + esc(c.value) + '" style="width:100%;padding:.3rem .5rem;border:1px solid var(--border);border-radius:4px;background:var(--bg);font:inherit;color:inherit"></td>' +
+    '<td><input class="cfg-disp" data-id="' + c.id + '" value="' + esc(c.display_value) + '" style="width:100%;padding:.3rem .5rem;border:1px solid var(--border);border-radius:4px;background:var(--bg);font:inherit;color:inherit"></td>' +
+    '<td><input class="cfg-ord" data-id="' + c.id + '" type="number" value="' + c.sort_order + '" style="width:60px;padding:.3rem .5rem;border:1px solid var(--border);border-radius:4px;background:var(--bg);font:inherit;color:inherit;text-align:center"></td>' +
+    '<td><button class="btn btn-danger btn-sm" onclick="deleteConfigItem(\'' + c.id + '\',\'' + esc(type) + '\')">Delete</button></td>' +
+    '</tr>'
+  ).join('');
+
+  showModal(
+    '<h2 style="margin-bottom:.75rem">' + esc(type) + ' Configuration</h2>' +
+    '<div class="tbl-wrap" style="max-height:400px;overflow-y:auto"><table>' +
+    '<thead><tr><th>Value</th><th>Display Value</th><th>Order</th><th></th></tr></thead>' +
+    '<tbody id="cfg-modal-body">' + rows + '</tbody>' +
+    '</table></div>' +
+    '<div style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)">' +
+    '<h4 style="margin-bottom:.5rem;font-size:.9rem">Add New Item</h4>' +
+    '<div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">' +
+    '<input id="cfg-new-value" placeholder="Value" style="flex:1;min-width:100px;padding:.3rem .5rem;border:1px solid var(--border);border-radius:4px;background:var(--bg);font:inherit;color:inherit">' +
+    '<input id="cfg-new-display" placeholder="Display Value" style="flex:1;min-width:100px;padding:.3rem .5rem;border:1px solid var(--border);border-radius:4px;background:var(--bg);font:inherit;color:inherit">' +
+    '<input id="cfg-new-order" type="number" placeholder="Order" value="0" style="width:60px;padding:.3rem .5rem;border:1px solid var(--border);border-radius:4px;background:var(--bg);font:inherit;color:inherit;text-align:center">' +
+    '<button class="btn btn-primary btn-sm" onclick="addConfigItem(\'' + esc(type) + '\')">+ Add</button>' +
+    '</div></div>' +
+    '<div class="actions" style="margin-top:1rem">' +
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn btn-primary" onclick="saveAllConfigItems(\'' + esc(type) + '\')">Save All</button></div>'
+  );
+}
+
+async function addConfigItem(type) {
+  const value = document.getElementById('cfg-new-value').value.trim();
+  const display_value = document.getElementById('cfg-new-display').value.trim();
+  const sort_order = parseInt(document.getElementById('cfg-new-order').value) || 0;
+  if (!value) { toast('Value is required'); return; }
+  try {
+    await api('/config', {
+      method: 'POST',
+      body: JSON.stringify({ type, value, display_value: display_value || value, sort_order })
+    });
+    toast('Item added');
+    // Reload data and refresh modal
+    const data = await api('/config');
+    allConfigData = data.config;
+    loadConfig();
+    showConfigTypeModal(type);
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+async function saveAllConfigItems(type) {
+  const items = allConfigData.filter(c => c.type === type);
+  let hasError = false;
+  for (const c of items) {
+    const valEl = document.querySelector('.cfg-val[data-id="' + c.id + '"]');
+    const dispEl = document.querySelector('.cfg-disp[data-id="' + c.id + '"]');
+    const ordEl = document.querySelector('.cfg-ord[data-id="' + c.id + '"]');
+    if (!valEl) continue; // row may have been deleted
+    const value = valEl.value.trim();
+    const display_value = dispEl.value.trim();
+    const sort_order = parseInt(ordEl.value) || 0;
+    if (value !== c.value || display_value !== c.display_value || sort_order !== c.sort_order) {
       try {
-        els.formStatus.textContent = 'Loading live data...';
-        const [recordsData, objectivesData] = await Promise.all([ api('/records'), api('/objectives') ]);
-        state.records = (recordsData.records || []).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
-        // Merge server objectives with seeds, preferring server entries by (member, month)
-        const server = objectivesData.objectives || [];
-        // Always keep July 2026 seed examples visible as a baseline. Server entries with non-empty text override seeds; empty server rows do not erase them.
-        const julySeeds = seedObjectives.filter(o => o.month === 'July 2026').map((o, i) => ({ id: 'seed-' + i, ...o }));
-        const serverNonJuly = server.filter(s => s.month !== 'July 2026');
-        const serverJulyByMember = new Map(server.filter(s => s.month === 'July 2026' && (s.text || '').trim()).map(s => [s.member, s]));
-        const mergedJuly = julySeeds.map(seed => serverJulyByMember.get(seed.member) || seed);
-        state.objectives = [...serverNonJuly, ...mergedJuly];
-        state.weekly = await fetchWeekly();
-        renderAll();
-        const note = state.currentUser ? '' : ' Sign in to submit entries.';
-        els.formStatus.innerHTML = '<span class="ok">Live data loaded.</span>' + note;
-      } catch (err) {
-        state.weekly = loadLocalWeekly();
-        renderAll();
-        els.formStatus.textContent = err.message;
+        await api('/config/' + c.id, {
+          method: 'PUT',
+          body: JSON.stringify({ type, value, display_value, sort_order })
+        });
+      } catch (e) {
+        hasError = true;
+        toast('Error updating ' + c.value + ': ' + e.message);
       }
     }
+  }
+  if (!hasError) toast('All changes saved');
+  closeModal();
+  loadConfigView();
+  loadConfig();
+}
 
-    async function submitRecord() {
-      try {
-        if (!state.currentUser || state.isReviewer) throw new Error('Sign in as a team member to submit.');
-        const payload = {
-          member: state.currentUser,
-          date: els.date.value,
-          site: els.site.value,
-          tasks: els.tasks.value.trim(),
-          deliverables: els.deliverables.value.trim(),
-          submittedBy: state.currentUser
-        };
-        if (!payload.date) throw new Error('Date is required.');
-        els.formStatus.textContent = 'Submitting...';
-        await api('/records', { method:'POST', body: JSON.stringify(payload) });
-        els.tasks.value = ''; els.deliverables.value = ''; els.date.value = today;
-        els.formStatus.innerHTML = '<span class="ok">Daily entry submitted.</span>';
-        await loadAll();
-      } catch (err) { els.formStatus.textContent = err.message; }
-    }
+async function deleteConfigItem(id, type) {
+  if (!confirm('Delete this configuration entry?')) return;
+  try {
+    await api('/config/' + id, { method: 'DELETE' });
+    toast('Item deleted');
+    const data = await api('/config');
+    allConfigData = data.config;
+    loadConfig();
+    showConfigTypeModal(type);
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
 
-    async function submitWeekly() {
-      try {
-        if (!state.currentUser || state.isReviewer) throw new Error('Sign in as a team member to submit.');
-        const weekEnding = els.wWeekEnding.value || nearestFriday(new Date());
-        const payload = {
-          member: state.currentUser,
-          weekEnding,
-          progress: els.wProgress.value.trim(),
-          plans: els.wPlans.value.trim(),
-          problems: els.wProblems.value.trim(),
-          status: 'Submitted',
-          blockersFlag: !!els.wProblems.value.trim()
-        };
-        if (!payload.progress && !payload.plans) throw new Error('Please fill in at least Progress or Plans.');
-        els.formStatus.textContent = 'Submitting weekly PPP...';
-        await saveWeekly(payload);
-        state.weekly = await fetchWeekly();
-        els.wProgress.value = ''; els.wPlans.value = ''; els.wProblems.value = '';
-        els.formStatus.innerHTML = '<span class="ok">Weekly PPP submitted.</span>';
-        renderWeekly();
-      } catch (err) { els.formStatus.textContent = err.message; }
-    }
+// ==================== CHANGE PIN ====================
+function showChangePin() {
+  document.getElementById('user-dropdown').classList.remove('show');
+  showModal(
+    '<h2>Change PIN</h2>' +
+    '<div class="field"><label>Current PIN</label><input type="password" id="pin-current" maxlength="4" inputmode="numeric"></div>' +
+    '<div class="field"><label>New PIN (4 digits)</label><input type="password" id="pin-new" maxlength="4" inputmode="numeric"></div>' +
+    '<div class="field"><label>Confirm New PIN</label><input type="password" id="pin-confirm" maxlength="4" inputmode="numeric"></div>' +
+    '<div class="actions">' +
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn btn-primary" onclick="doChangePin()">Change PIN</button></div>'
+  );
+}
 
-    async function saveObjective() {
-      try {
-        if (!state.currentUser || state.isReviewer) throw new Error('Sign in as a team member to edit objectives.');
-        const text = normalizeObjectiveText(els.objectiveText.value);
-        const payload = { member: state.currentUser, month: els.objectiveMonth.value, text };
-        if (!payload.text) throw new Error('Objective text is required.');
-        if (state.editingObjectiveId) {
-          // Ensure the editing target belongs to the current user
-          const target = state.objectives.find(o => o.id === state.editingObjectiveId);
-          if (target && target.member !== state.currentUser) throw new Error('You can only edit your own objectives.');
-          await api('/objectives/' + state.editingObjectiveId, { method:'PUT', body: JSON.stringify(payload) });
-          state.editingObjectiveId = null;
-          els.saveObjectiveBtn.textContent = 'Save objective box';
-        } else {
-          await api('/objectives', { method:'POST', body: JSON.stringify(payload) });
+async function doChangePin() {
+  const currentPin = document.getElementById('pin-current').value;
+  const newPin = document.getElementById('pin-new').value;
+  const confirmPin = document.getElementById('pin-confirm').value;
+  if (newPin !== confirmPin) { toast('New PINs do not match'); return; }
+  if (!/^\d{4}$/.test(newPin)) { toast('PIN must be exactly 4 digits'); return; }
+  try {
+    await api('/auth/change-pin', {
+      method: 'POST',
+      body: JSON.stringify({ currentPin, newPin })
+    });
+    closeModal();
+    toast('PIN changed successfully');
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+// ==================== MODAL ====================
+function showModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').style.display = 'flex';
+}
+
+function closeModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('modal-overlay').style.display = 'none';
+}
+
+// ==================== HELPERS ====================
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function truncate(s, n) {
+  return s && s.length > n ? s.slice(0, n) + '...' : (s || '');
+}
+
+function statusBadge(s) {
+  const cls = s === 'Submitted' ? 'badge-submitted' : s === 'Reviewed' ? 'badge-reviewed' : 'badge-draft';
+  return '<span class="badge ' + cls + '">' + esc(s) + '</span>';
+}
+
+function leaveStr(e) {
+  const parts = [];
+  if (e.leave_am) parts.push('AM');
+  if (e.leave_pm) parts.push('PM');
+  return parts.length ? parts.join(', ') : '-';
+}
+
+function getSiteCheckboxes(containerId) {
+  return Array.from(document.querySelectorAll('#' + containerId + ' input[type="checkbox"]:checked'))
+    .map(cb => cb.value);
+}
+
+function setSiteCheckboxes(containerId, sites) {
+  document.querySelectorAll('#' + containerId + ' input[type="checkbox"]').forEach(cb => {
+    cb.checked = sites.includes(cb.value);
+  });
+}
+
+function clearSiteCheckboxes(containerId) {
+  document.querySelectorAll('#' + containerId + ' input[type="checkbox"]').forEach(cb => cb.checked = false);
+}
+
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ==================== ACCOUNT MANAGEMENT ====================
+// ==================== BACKUP & RESTORE ====================
+async function loadBackupStatus() {
+  try {
+    const data = await api('/backup/status');
+    const c = data.counts;
+    document.getElementById('backup-status').innerHTML =
+      '<strong>Database Status:</strong> ' +
+      '<span style="color:var(--success)">Online</span> — ' +
+      c.users + ' users, ' +
+      c.system_config + ' config items, ' +
+      c.work_entries + ' work entries, ' +
+      c.monthly_objectives + ' objectives, ' +
+      (c.email_alerts || 0) + ' email alerts';
+  } catch (e) {
+    document.getElementById('backup-status').innerHTML =
+      '<strong>Database Status:</strong> <span style="color:var(--danger)">Error - ' + e.message + '</span>';
+  }
+}
+
+async function downloadBackup() {
+  try {
+    toast('Preparing backup...');
+    const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+    const res = await fetch(API + '/backup/export', { headers });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'it-tracker-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('Backup downloaded successfully');
+  } catch (e) {
+    toast('Backup failed: ' + e.message);
+  }
+}
+
+async function restoreBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (!confirm('Are you sure you want to restore from backup?\n\nThis will merge the backup data with existing records. No data will be deleted.')) {
+    event.target.value = '';
+    return;
+  }
+  try {
+    toast('Reading backup file...');
+    const text = await file.text();
+    const backup = JSON.parse(text);
+    if (!backup.tables) { toast('Invalid backup file format'); return; }
+
+    toast('Restoring data...');
+    const result = await api('/backup/restore', {
+      method: 'POST',
+      body: JSON.stringify(backup)
+    });
+
+    const r = result.restored;
+    toast('Restore complete: ' + r.users + ' users, ' + r.system_config + ' configs, ' + r.work_entries + ' entries, ' + r.monthly_objectives + ' objectives');
+    loadAccounts();
+    loadBackupStatus();
+  } catch (e) {
+    toast('Restore failed: ' + e.message);
+  }
+  event.target.value = '';
+}
+
+// ==================== ACCOUNT MANAGEMENT ====================
+async function loadAccounts() {
+  loadBackupStatus();
+  try {
+    const data = await api('/auth/users');
+    const body = document.getElementById('accounts-body');
+    body.innerHTML = data.users.map(u =>
+      '<tr>' +
+      '<td>' + esc(u.name) + '</td>' +
+      '<td>' + esc(u.email) + '</td>' +
+      '<td>' + esc(u.pin) + '</td>' +
+      '<td>' + esc(u.role) + '</td>' +
+      '<td>' + (u.admin ? '<span style="color:var(--success);font-weight:600">Yes</span>' : 'No') + '</td>' +
+      '<td>' + fmtDate(u.last_modified) + '</td>' +
+      '<td><button class="btn btn-outline btn-sm" onclick=\'showEditUser(' + JSON.stringify({id:u.id,name:u.name,email:u.email,pin:u.pin,role:u.role,admin:u.admin}) + ')\'>Edit</button></td>' +
+      '</tr>'
+    ).join('');
+  } catch (e) {
+    console.error('Load accounts error:', e);
+  }
+}
+
+function showAddUser() {
+  showModal(
+    '<h2>Add User</h2>' +
+    '<div class="field"><label>Name</label><input id="user-name" placeholder="Full name"></div>' +
+    '<div class="field"><label>Email</label><input id="user-email" type="email" placeholder="name@aeondelightasia.com"></div>' +
+    '<div class="field"><label>PIN (4 digits)</label><input id="user-pin" maxlength="4" placeholder="1111" inputmode="numeric"></div>' +
+    '<div class="field"><label>Role</label>' +
+    '<select id="user-role"><option value="General">General</option><option value="Reviewer">Reviewer</option></select></div>' +
+    '<div class="field"><label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="user-admin" style="width:auto"> Admin</label></div>' +
+    '<div class="actions">' +
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn btn-primary" onclick="doAddUser()">Add</button></div>'
+  );
+}
+
+async function doAddUser() {
+  const name = document.getElementById('user-name').value.trim();
+  const email = document.getElementById('user-email').value.trim();
+  const pin = document.getElementById('user-pin').value.trim() || '1111';
+  const role = document.getElementById('user-role').value;
+  const admin = document.getElementById('user-admin').checked;
+  if (!name || !email) { toast('Name and email are required'); return; }
+  try {
+    await api('/auth/users', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, pin, role, admin })
+    });
+    closeModal();
+    toast('User created');
+    loadAccounts();
+    loadUsers();
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+function showEditUser(u) {
+  showModal(
+    '<h2>Edit User</h2>' +
+    '<div class="field"><label>Name</label><input id="user-name" value="' + esc(u.name) + '"></div>' +
+    '<div class="field"><label>Email</label><input id="user-email" type="email" value="' + esc(u.email) + '"></div>' +
+    '<div class="field"><label>PIN (4 digits)</label><input id="user-pin" maxlength="4" value="' + esc(u.pin) + '" inputmode="numeric"></div>' +
+    '<div class="field"><label>Role</label>' +
+    '<select id="user-role"><option value="General">General</option><option value="Reviewer">Reviewer</option></select></div>' +
+    '<div class="field"><label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="user-admin" style="width:auto" ' + (u.admin ? 'checked' : '') + '> Admin</label></div>' +
+    '<div class="actions">' +
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn btn-primary" onclick="doEditUser(\'' + u.id + '\')">Save</button></div>'
+  );
+  document.getElementById('user-role').value = u.role;
+}
+
+async function doEditUser(id) {
+  const name = document.getElementById('user-name').value.trim();
+  const email = document.getElementById('user-email').value.trim();
+  const pin = document.getElementById('user-pin').value.trim();
+  const role = document.getElementById('user-role').value;
+  const admin = document.getElementById('user-admin').checked;
+  if (!name || !email) { toast('Name and email are required'); return; }
+  try {
+    await api('/auth/users/' + id, {
+      method: 'PUT',
+      body: JSON.stringify({ name, email, pin, role, admin })
+    });
+    closeModal();
+    toast('User updated');
+    loadAccounts();
+    loadUsers();
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+// ==================== WEEKLY DATE — FRIDAY ONLY ====================
+document.getElementById('weekly-date').addEventListener('input', function() {
+  const val = this.value;
+  if (!val) return;
+  const d = new Date(val);
+  const day = d.getDay(); // 0=Sun, 5=Fri
+  if (day !== 5) {
+    // Snap to nearest Friday
+    const diff = 5 - day;
+    const adjusted = diff > 0 ? diff : diff + 7;
+    d.setDate(d.getDate() + adjusted);
+    this.value = d.toISOString().slice(0, 10);
+    toast('Date adjusted to Friday');
+  }
+});
+
+// ==================== REPORTS ====================
+function initReportWeek() {
+  document.getElementById('report-week-from').value = getMonday(today());
+  document.getElementById('report-week-to').value = getFriday(today());
+  initReportObjMonth();
+}
+
+function initReportObjMonth() {
+  const sel = document.getElementById('report-obj-month');
+  if (sel.options.length > 0) return; // already populated
+  const now = new Date();
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  // Generate 12 months back + current + 1 forward
+  const options = [];
+  for (let i = -12; i <= 1; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const m = d.getMonth() + 1;
+    const y = d.getFullYear();
+    const label = monthNames[d.getMonth()] + ' ' + y;
+    const val = m + '|' + y;
+    options.push({ label, val, selected: (i === 0) });
+  }
+  sel.innerHTML = options.map(o =>
+    '<option value="' + o.val + '"' + (o.selected ? ' selected' : '') + '>' + o.label + '</option>'
+  ).join('');
+}
+
+async function generateWeeklyPPPReport() {
+  const monday = document.getElementById('report-week-from').value;
+  const friday = document.getElementById('report-week-to').value;
+  if (!monday || !friday) { toast('Please select week dates'); return; }
+
+  try {
+    toast('Generating report...');
+    // Fetch dashboard summary data
+    const dashData = await api('/dashboard/weekly-summary?monday=' + monday + '&friday=' + friday);
+    // Fetch all weekly entries for the week
+    const weeklyData = await api('/entries?event_type=Weekly&date_from=' + monday + '&date_to=' + friday);
+    const weeklyEntries = weeklyData.entries || [];
+
+    // Calculate metrics
+    const pu = dashData.perUser || {};
+    let totalSubmitted = 0, totalExpected = 0;
+    Object.values(pu).forEach(v => { totalSubmitted += v.submitted; totalExpected += v.total; });
+    const totalBlockages = dashData.totalBlockages || 0;
+
+    // Build PDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('landscape', 'mm', 'a4');
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 14;
+    let y = margin;
+
+    // Title
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Weekly PPP Report', margin, y);
+    y += 7;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100);
+    doc.text('Week: ' + fmtDate(monday) + ' — ' + fmtDate(friday), margin, y);
+    doc.text('Generated: ' + fmtDate(today()) + ' ' + new Date().toLocaleTimeString(), pageW - margin, y, { align: 'right' });
+    doc.setTextColor(0);
+    y += 4;
+
+    // Divider line
+    doc.setDrawColor(45, 106, 79);
+    doc.setLineWidth(0.8);
+    doc.line(margin, y, pageW - margin, y);
+    y += 6;
+
+    // ── Summary Metrics (3 boxes) ──
+    const boxW = (pageW - margin * 2 - 12) / 3;
+    const boxH = 18;
+    const boxes = [
+      { label: 'SUBMITTED', value: String(totalSubmitted), color: [46, 125, 50] },
+      { label: 'NON-SUBMITTED', value: String(totalExpected - totalSubmitted), color: [211, 47, 47] },
+      { label: 'TOTAL BLOCKAGES', value: String(totalBlockages), color: [21, 101, 192] }
+    ];
+
+    boxes.forEach((b, i) => {
+      const bx = margin + i * (boxW + 6);
+      doc.setFillColor(245, 245, 240);
+      doc.roundedRect(bx, y, boxW, boxH, 2, 2, 'F');
+      doc.setDrawColor(200);
+      doc.roundedRect(bx, y, boxW, boxH, 2, 2, 'S');
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(100);
+      doc.text(b.label, bx + boxW / 2, y + 6, { align: 'center' });
+      doc.setFontSize(16);
+      doc.setTextColor(b.color[0], b.color[1], b.color[2]);
+      doc.text(b.value, bx + boxW / 2, y + 14.5, { align: 'center' });
+    });
+    y += boxH + 4;
+
+    // ── Submission Status per User ──
+    doc.setTextColor(0);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Submission Status per User', margin, y + 3);
+    y += 5;
+
+    const userNames = Object.keys(pu);
+    const statusRows = userNames.map(name => {
+      const v = pu[name];
+      return [name, String(v.submitted), String(v.total - v.submitted), String(v.outsideDays), String(v.leaveDays || 0)];
+    });
+
+    doc.autoTable({
+      startY: y,
+      head: [['User', 'Submitted', 'Non-Submitted', 'Outside Work Days', 'Leave Days']],
+      body: statusRows,
+      margin: { left: margin, right: margin },
+      styles: { fontSize: 7, cellPadding: 1.5 },
+      headStyles: { fillColor: [45, 106, 79], textColor: 255, fontStyle: 'bold', fontSize: 7 },
+      alternateRowStyles: { fillColor: [248, 248, 245] },
+      theme: 'grid'
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // ── Weekly PPP Entries Table ──
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0);
+    doc.text('Weekly PPP Entries', margin, y + 3);
+    y += 5;
+
+    // Get user names mapped
+    const userMap = {};
+    (dashData.users || allUsers).forEach(u => { userMap[u.id] = u.name; });
+
+    if (weeklyEntries.length === 0) {
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(8);
+      doc.setTextColor(120);
+      doc.text('No Weekly PPP entries found for this week.', margin, y + 4);
+      y += 8;
+    } else {
+      const pppRows = weeklyEntries.map(e => {
+        const userName = e.user_name || userMap[e.user_id] || 'Unknown';
+        return [
+          userName,
+          (e.description || '').substring(0, 120),
+          (e.blockage || '').substring(0, 80),
+          (e.next_week_target || '').substring(0, 80),
+          e.status || ''
+        ];
+      });
+
+      doc.autoTable({
+        startY: y,
+        head: [['User', 'Progress', 'Blockage / Problems', 'Next Week Target', 'Status']],
+        body: pppRows,
+        margin: { left: margin, right: margin },
+        styles: { fontSize: 7, cellPadding: 1.5, overflow: 'linebreak' },
+        headStyles: { fillColor: [45, 106, 79], textColor: 255, fontStyle: 'bold', fontSize: 7 },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 75 },
+          2: { cellWidth: 60 },
+          3: { cellWidth: 60 },
+          4: { cellWidth: 22 }
+        },
+        alternateRowStyles: { fillColor: [248, 248, 245] },
+        theme: 'grid',
+        didParseCell: function(data) {
+          // Highlight blockage cells with red background
+          if (data.section === 'body' && data.column.index === 2 && data.cell.raw && data.cell.raw.trim()) {
+            data.cell.styles.fillColor = [255, 230, 230];
+            data.cell.styles.textColor = [180, 30, 30];
+          }
         }
-        els.objectiveText.value = '';
-        await loadAll();
-      } catch (err) { els.formStatus.textContent = err.message; }
+      });
+      y = doc.lastAutoTable.finalY + 6;
     }
 
-    // ===== Globals for inline buttons =====
-    window.startReviseObjective = function(id) {
-      const item = state.objectives.find(o => o.id === id); if (!item) return;
-      if (item.member !== state.currentUser) { alert('You can only revise your own objective.'); return; }
-      state.editingObjectiveId = id;
-      els.objectiveMonth.value = item.month;
-      els.objectiveText.value = item.text;
-      els.saveObjectiveBtn.textContent = 'Update objective box';
-      renderObjectives();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-    window.deleteObjective = async function(id) {
-      try {
-        const item = state.objectives.find(o => o.id === id);
-        if (!item) return;
-        if (item.member !== state.currentUser) { alert('You can only delete your own objective.'); return; }
-        await api('/objectives/' + id, { method:'DELETE' });
-        await loadAll();
-      } catch (err) { els.formStatus.textContent = err.message; }
-    };
-    window.prefillWeekly = function(member, weekEnding) {
-      if (member !== state.currentUser) { alert('You can only submit your own weekly PPP.'); return; }
-      switchForm('weekly');
-      els.wWeekEnding.value = weekEnding;
-      const existing = state.weekly.find(w => w.member === member && w.weekEnding === weekEnding);
-      els.wProgress.value = existing?.progress || '';
-      els.wPlans.value = existing?.plans || '';
-      els.wProblems.value = existing?.problems || '';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+    // ── Blockage Details (if any) ──
+    const blockages = dashData.weeklyBlockages || [];
+    if (blockages.length > 0) {
+      // Check if we need a new page
+      if (y > pageH - 30) { doc.addPage(); y = margin; }
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0);
+      doc.text('Blockage Details', margin, y + 3);
+      y += 5;
 
-    // ===== Tab and form-pane switching =====
-    function switchForm(name){
-      state.activeForm = name;
-      document.querySelectorAll('.sub-tab').forEach(t => t.classList.toggle('active', t.dataset.form === name));
-      document.querySelectorAll('.form-pane').forEach(p => p.classList.toggle('active', p.id === 'form-' + name));
+      const blockRows = blockages.map(e => [
+        e.user_name || userMap[e.user_id] || 'Unknown',
+        e.blockage || ''
+      ]);
+
+      doc.autoTable({
+        startY: y,
+        head: [['User', 'Blockage Description']],
+        body: blockRows,
+        margin: { left: margin, right: margin },
+        styles: { fontSize: 7, cellPadding: 1.5, overflow: 'linebreak' },
+        headStyles: { fillColor: [211, 47, 47], textColor: 255, fontStyle: 'bold', fontSize: 7 },
+        columnStyles: { 0: { cellWidth: 40 }, 1: { cellWidth: 'auto' } },
+        alternateRowStyles: { fillColor: [255, 240, 240] },
+        theme: 'grid'
+      });
     }
-    document.querySelectorAll('.sub-tab').forEach(btn => btn.addEventListener('click', () => switchForm(btn.dataset.form)));
 
-    document.querySelectorAll('.tab[data-filter]').forEach(btn => btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab[data-filter]').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.filter = btn.dataset.filter;
-      renderRecords();
-    }));
-    document.querySelectorAll('.tab[data-wfilter]').forEach(btn => btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab[data-wfilter]').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.wfilter = btn.dataset.wfilter;
-      renderWeekly();
-    }));
-
-    els.objectiveMonth.addEventListener('change', renderObjectives);
-    els.resetJulyBtn.addEventListener('click', () => {
-      const julySeeds = seedObjectives.filter(o => o.month === 'July 2026').map((o, i) => ({ id: 'seed-' + i, ...o }));
-      const others = state.objectives.filter(o => o.month !== 'July 2026');
-      state.objectives = [...others, ...julySeeds];
-      els.objectiveMonth.value = 'July 2026';
-      renderObjectives();
-    });
-    els.wWeekEnding.addEventListener('change', () => {
-      state.currentWeekEnding = els.wWeekEnding.value || state.currentWeekEnding;
-      els.dashWeekEnding.value = state.currentWeekEnding;
-      renderWeekly();
-    });
-    els.dashWeekEnding.addEventListener('change', () => {
-      state.currentWeekEnding = els.dashWeekEnding.value || state.currentWeekEnding;
-      els.wWeekEnding.value = state.currentWeekEnding;
-      renderWeekly();
-    });
-
-    // Buttons
-    els.submitBtn.addEventListener('click', submitRecord);
-    els.submitWeeklyBtn.addEventListener('click', submitWeekly);
-    els.saveObjectiveBtn.addEventListener('click', saveObjective);
-    els.refreshBtn.addEventListener('click', loadAll);
-    els.printReportBtn.addEventListener('click', () => window.print());
-
-    // ===== Initial render =====
-    // One-time migration for v4: clear any stale objectives cache from prior versions.
-    if (!localStorage.getItem('v4_migrated')) {
-      try { localStorage.removeItem('objectives_local'); } catch {}
-      localStorage.setItem('v4_migrated', '1');
+    // Footer on all pages
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let p = 1; p <= totalPages; p++) {
+      doc.setPage(p);
+      doc.setFontSize(7);
+      doc.setTextColor(150);
+      doc.text('IT Team Tracker — Weekly PPP Report', margin, pageH - 6);
+      doc.text('Page ' + p + ' of ' + totalPages, pageW - margin, pageH - 6, { align: 'right' });
     }
-    state.objectives = seedObjectives.map((o, i) => ({ id: 'seed-' + i, ...o }));
-    state.weekly = loadLocalWeekly();
-    els.objectiveMonth.value = 'July 2026';
-    renderAll();
-    restoreSession();
-    // Auto-load live data if API URL is configured
-    if (els.apiUrl.value.trim()) loadAll();
-  </script>
+
+    // Save
+    const filename = 'Weekly_PPP_Report_' + monday + '_to_' + friday + '.pdf';
+    doc.save(filename);
+    toast('Report downloaded: ' + filename);
+  } catch (e) {
+    console.error('Report generation error:', e);
+    toast('Failed to generate report: ' + e.message);
+  }
+}
+
+// ==================== MONTHLY OBJECTIVE REPORT ====================
+async function generateMonthlyObjReport() {
+  const sel = document.getElementById('report-obj-month');
+  if (!sel.value) { toast('Please select a month'); return; }
+  const [month, year] = sel.value.split('|').map(Number);
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const monthLabel = monthNames[month - 1] + ' ' + year;
+
+  try {
+    toast('Generating report...');
+    const data = await api('/objectives?year=' + year + '&month=' + month);
+    const objectives = data.objectives || [];
+    const generalUsers = allUsers.filter(u => u.role === 'General').sort((a, b) => a.name.localeCompare(b.name));
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('portrait', 'mm', 'a4');
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 14;
+    let y = margin;
+
+    // Title
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Monthly Objective Report', margin, y);
+    y += 7;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100);
+    doc.text(monthLabel, margin, y);
+    doc.text('Generated: ' + fmtDate(today()) + ' ' + new Date().toLocaleTimeString(), pageW - margin, y, { align: 'right' });
+    doc.setTextColor(0);
+    y += 4;
+
+    // Divider line
+    doc.setDrawColor(45, 106, 79);
+    doc.setLineWidth(0.8);
+    doc.line(margin, y, pageW - margin, y);
+    y += 6;
+
+    // Summary box
+    const filledCount = generalUsers.filter(u => {
+      const obj = objectives.find(o => o.user_id === u.id);
+      return obj && obj.objectives && obj.objectives.trim();
+    }).length;
+    const emptyCount = generalUsers.length - filledCount;
+
+    const boxW = (pageW - margin * 2 - 6) / 2;
+    const boxH = 16;
+    // Filled
+    doc.setFillColor(232, 245, 233);
+    doc.roundedRect(margin, y, boxW, boxH, 2, 2, 'F');
+    doc.setDrawColor(200);
+    doc.roundedRect(margin, y, boxW, boxH, 2, 2, 'S');
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100);
+    doc.text('OBJECTIVES FILLED', margin + boxW / 2, y + 5, { align: 'center' });
+    doc.setFontSize(14);
+    doc.setTextColor(46, 125, 50);
+    doc.text(String(filledCount), margin + boxW / 2, y + 13, { align: 'center' });
+    // Empty
+    const bx2 = margin + boxW + 6;
+    doc.setFillColor(255, 235, 238);
+    doc.roundedRect(bx2, y, boxW, boxH, 2, 2, 'F');
+    doc.setDrawColor(200);
+    doc.roundedRect(bx2, y, boxW, boxH, 2, 2, 'S');
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100);
+    doc.text('NOT YET FILLED', bx2 + boxW / 2, y + 5, { align: 'center' });
+    doc.setFontSize(14);
+    doc.setTextColor(211, 47, 47);
+    doc.text(String(emptyCount), bx2 + boxW / 2, y + 13, { align: 'center' });
+    y += boxH + 6;
+
+    // Table
+    doc.setTextColor(0);
+    const rows = generalUsers.map(u => {
+      const obj = objectives.find(o => o.user_id === u.id);
+      const text = (obj && obj.objectives) ? obj.objectives.trim() : '';
+      return [u.name, text || '—'];
+    });
+
+    doc.autoTable({
+      startY: y,
+      head: [['User', 'Monthly Objectives (' + monthLabel + ')']],
+      body: rows,
+      margin: { left: margin, right: margin },
+      styles: { fontSize: 9, cellPadding: 3, overflow: 'linebreak', lineWidth: 0.2 },
+      headStyles: { fillColor: [45, 106, 79], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+      columnStyles: {
+        0: { cellWidth: 40, fontStyle: 'bold' },
+        1: { cellWidth: 'auto' }
+      },
+      alternateRowStyles: { fillColor: [248, 248, 245] },
+      theme: 'grid',
+      didParseCell: function(data) {
+        // Highlight empty objectives with red background
+        if (data.section === 'body' && data.column.index === 1 && data.cell.raw === '—') {
+          data.cell.styles.fillColor = [255, 235, 238];
+          data.cell.styles.textColor = [180, 30, 30];
+          data.cell.styles.fontStyle = 'italic';
+        }
+      }
+    });
+
+    // Footer on all pages
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let p = 1; p <= totalPages; p++) {
+      doc.setPage(p);
+      doc.setFontSize(7);
+      doc.setTextColor(150);
+      doc.text('IT Team Tracker — Monthly Objective Report', margin, pageH - 6);
+      doc.text('Page ' + p + ' of ' + totalPages, pageW - margin, pageH - 6, { align: 'right' });
+    }
+
+    const filename = 'Monthly_Objective_Report_' + year + '_' + String(month).padStart(2, '0') + '.pdf';
+    doc.save(filename);
+    toast('Report downloaded: ' + filename);
+  } catch (e) {
+    console.error('Monthly objective report error:', e);
+    toast('Failed to generate report: ' + e.message);
+  }
+}
+
+// ==================== EMAIL ALERTS ====================
+let emailAlerts = [];
+
+async function loadEmailAlerts() {
+  try {
+    // Load SMTP config
+    const smtpData = await api('/email-alerts/smtp');
+    const smtp = smtpData.smtp || {};
+    document.getElementById('smtp-host').value = smtp.host || '';
+    document.getElementById('smtp-port').value = smtp.port || '587';
+    document.getElementById('smtp-user').value = smtp.user || '';
+    document.getElementById('smtp-password').value = smtp.password || '';
+
+    // Load alert rules
+    const alertData = await api('/email-alerts');
+    emailAlerts = alertData.alerts || [];
+    renderAlertRules();
+  } catch (e) {
+    console.error('Load email alerts error:', e);
+  }
+}
+
+function renderAlertRules() {
+  const body = document.getElementById('alert-rules-body');
+  if (emailAlerts.length === 0) {
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No alert rules configured</td></tr>';
+    return;
+  }
+  body.innerHTML = emailAlerts.map(a => {
+    const lastSent = a.last_sent ? fmtDate(a.last_sent) + ' ' + new Date(a.last_sent).toLocaleTimeString() : 'Never';
+    const statusColor = a.last_result && a.last_result.startsWith('Failed') ? 'var(--danger)' : 'var(--text-muted)';
+    return '<tr>' +
+      '<td><strong>' + esc(a.name) + '</strong><div style="font-size:.75rem;color:var(--text-muted)">' + esc(a.subject) + '</div></td>' +
+      '<td>' + esc(a.schedule_day) + ' ' + esc(a.schedule_time) + '</td>' +
+      '<td>' + esc(a.recipient_role) + ' users</td>' +
+      '<td>' + (a.enabled
+        ? '<span style="color:var(--success);font-weight:600">Active</span>'
+        : '<span style="color:var(--text-muted)">Disabled</span>') + '</td>' +
+      '<td style="font-size:.8rem"><div>' + lastSent + '</div>' +
+        (a.last_result ? '<div style="font-size:.7rem;color:' + statusColor + '">' + esc(truncate(a.last_result, 40)) + '</div>' : '') + '</td>' +
+      '<td style="white-space:nowrap">' +
+        '<button class="btn btn-outline btn-sm" onclick=\'showEditAlertModal(' + JSON.stringify(a).replace(/'/g, "\\'") + ')\' style="margin-right:.25rem">Edit</button>' +
+        '<button class="btn btn-outline btn-sm" onclick="testAlert(\'' + a.id + '\')" style="margin-right:.25rem" title="Send test to yourself">Test</button>' +
+        '<button class="btn btn-primary btn-sm" onclick="sendAlertNow(\'' + a.id + '\')" title="Send to all recipients now">Send Now</button>' +
+      '</td></tr>';
+  }).join('');
+}
+
+async function saveSmtpConfig() {
+  try {
+    const host = document.getElementById('smtp-host').value.trim();
+    const port = document.getElementById('smtp-port').value.trim();
+    const user = document.getElementById('smtp-user').value.trim();
+    const password = document.getElementById('smtp-password').value.trim();
+
+    // Get existing SMTP config entries
+    const smtpData = await api('/email-alerts/smtp');
+    const raw = smtpData.raw || [];
+
+    const updates = { host, port, user, password, secure: 'false' };
+    for (const [key, val] of Object.entries(updates)) {
+      const existing = raw.find(r => r.value === key);
+      if (existing) {
+        await api('/config/' + existing.id, {
+          method: 'PUT',
+          body: JSON.stringify({ type: 'SMTP', value: key, display_value: val, sort_order: existing.sort_order })
+        });
+      } else {
+        const sortOrders = { host: 1, port: 2, user: 3, password: 4, secure: 5 };
+        await api('/config', {
+          method: 'POST',
+          body: JSON.stringify({ type: 'SMTP', value: key, display_value: val, sort_order: sortOrders[key] || 0 })
+        });
+      }
+    }
+    toast('SMTP settings saved');
+  } catch (e) {
+    toast('Error saving SMTP: ' + e.message);
+  }
+}
+
+function showAddAlertModal() {
+  showModal(
+    '<h2>Add Email Alert</h2>' +
+    '<div class="field"><label>Alert Name</label><input id="alert-name" placeholder="e.g. Weekly PPP Reminder"></div>' +
+    '<div class="field"><label>Email Subject</label><input id="alert-subject" placeholder="Submit Weekly PPP for IT Tracker"></div>' +
+    '<div class="field"><label>Email Body</label><textarea id="alert-body" rows="4" placeholder="Email content..."></textarea></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem">' +
+    '<div class="field"><label>Recipient Role</label>' +
+    '<select id="alert-role"><option value="General">General</option><option value="Reviewer">Reviewer</option></select></div>' +
+    '<div class="field"><label>Schedule Day</label>' +
+    '<select id="alert-day"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option selected>Friday</option><option>Saturday</option><option>Sunday</option></select></div>' +
+    '<div class="field"><label>Schedule Time</label><input id="alert-time" type="time" value="15:00"></div>' +
+    '</div>' +
+    '<div class="field"><label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="alert-enabled" checked style="width:auto"> Enabled</label></div>' +
+    '<div class="actions">' +
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn btn-primary" onclick="doAddAlert()">Add Alert</button></div>'
+  );
+}
+
+async function doAddAlert() {
+  const data = {
+    name: document.getElementById('alert-name').value.trim(),
+    subject: document.getElementById('alert-subject').value.trim(),
+    body: document.getElementById('alert-body').value.trim(),
+    recipient_role: document.getElementById('alert-role').value,
+    schedule_day: document.getElementById('alert-day').value,
+    schedule_time: document.getElementById('alert-time').value,
+    enabled: document.getElementById('alert-enabled').checked
+  };
+  if (!data.name) { toast('Alert name is required'); return; }
+  try {
+    await api('/email-alerts', { method: 'POST', body: JSON.stringify(data) });
+    closeModal();
+    toast('Alert created');
+    loadEmailAlerts();
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+function showEditAlertModal(a) {
+  showModal(
+    '<h2>Edit Email Alert</h2>' +
+    '<div class="field"><label>Alert Name</label><input id="alert-name" value="' + esc(a.name) + '"></div>' +
+    '<div class="field"><label>Email Subject</label><input id="alert-subject" value="' + esc(a.subject) + '"></div>' +
+    '<div class="field"><label>Email Body</label><textarea id="alert-body" rows="4">' + esc(a.body) + '</textarea></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem">' +
+    '<div class="field"><label>Recipient Role</label>' +
+    '<select id="alert-role"><option value="General">General</option><option value="Reviewer">Reviewer</option></select></div>' +
+    '<div class="field"><label>Schedule Day</label>' +
+    '<select id="alert-day"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>' +
+    '<div class="field"><label>Schedule Time</label><input id="alert-time" type="time" value="' + esc(a.schedule_time) + '"></div>' +
+    '</div>' +
+    '<div class="field"><label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="alert-enabled" ' + (a.enabled ? 'checked' : '') + ' style="width:auto"> Enabled</label></div>' +
+    '<div class="actions">' +
+    '<button class="btn btn-danger btn-sm" onclick="deleteAlert(\'' + a.id + '\')" style="margin-right:auto">Delete</button>' +
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn btn-primary" onclick="doEditAlert(\'' + a.id + '\')">Save</button></div>'
+  );
+  document.getElementById('alert-role').value = a.recipient_role;
+  document.getElementById('alert-day').value = a.schedule_day;
+}
+
+async function doEditAlert(id) {
+  const data = {
+    name: document.getElementById('alert-name').value.trim(),
+    subject: document.getElementById('alert-subject').value.trim(),
+    body: document.getElementById('alert-body').value.trim(),
+    recipient_role: document.getElementById('alert-role').value,
+    schedule_day: document.getElementById('alert-day').value,
+    schedule_time: document.getElementById('alert-time').value,
+    enabled: document.getElementById('alert-enabled').checked
+  };
+  if (!data.name) { toast('Alert name is required'); return; }
+  try {
+    await api('/email-alerts/' + id, { method: 'PUT', body: JSON.stringify(data) });
+    closeModal();
+    toast('Alert updated');
+    loadEmailAlerts();
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+async function deleteAlert(id) {
+  if (!confirm('Delete this email alert rule?')) return;
+  try {
+    await api('/email-alerts/' + id, { method: 'DELETE' });
+    closeModal();
+    toast('Alert deleted');
+    loadEmailAlerts();
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+async function testAlert(id) {
+  try {
+    toast('Sending test email to your address...');
+    const result = await api('/email-alerts/' + id + '/test', { method: 'POST' });
+    if (result.success) {
+      toast('Test email sent! Check your inbox.');
+    } else {
+      toast('Test failed: ' + result.message);
+    }
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+async function sendAlertNow(id) {
+  if (!confirm('Send this email alert to all recipients now?')) return;
+  try {
+    toast('Sending email alert...');
+    const result = await api('/email-alerts/' + id + '/send', { method: 'POST' });
+    if (result.success) {
+      toast('Email sent to ' + result.recipientCount + ' recipient(s)!');
+      loadEmailAlerts(); // refresh last_sent
+    } else {
+      toast('Send failed: ' + result.message);
+    }
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+// ==================== INIT ====================
+if (localStorage.getItem('theme') === 'dark')
+  document.documentElement.setAttribute('data-theme', 'dark');
+
+if (token && currentUser) {
+  enterApp();
+} else {
+  document.getElementById('login-view').style.display = 'flex';
+}
+</script>
 </body>
 </html>

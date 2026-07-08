@@ -1,14 +1,21 @@
 const { Router } = require('express');
 const pool = require('../db');
+const { authMiddleware } = require('../middleware/auth');
 
 const router = Router();
 
-// GET / — return all objectives
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   try {
-    const { rows } = await pool.query(
-      'SELECT id, member, month, text, created_at FROM objectives ORDER BY created_at DESC'
-    );
+    const { year, month, user_id } = req.query;
+    let query = `SELECT o.*, u.name AS user_name
+                 FROM monthly_objectives o JOIN users u ON o.user_id = u.id WHERE 1=1`;
+    const params = [];
+    let i = 1;
+    if (year)    { query += ` AND o.year = $${i++}`;    params.push(parseInt(year)); }
+    if (month)   { query += ` AND o.month = $${i++}`;   params.push(parseInt(month)); }
+    if (user_id) { query += ` AND o.user_id = $${i++}`; params.push(user_id); }
+    query += ' ORDER BY o.year DESC, o.month DESC, u.name';
+    const { rows } = await pool.query(query, params);
     res.json({ objectives: rows });
   } catch (err) {
     console.error('GET /objectives error:', err.message);
@@ -16,19 +23,28 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST / — create or upsert an objective
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { member, month, text } = req.body;
-    if (!member || !month) {
-      return res.status(400).json({ error: 'member and month are required' });
+    const { year, month, objectives, user_id } = req.body;
+    if (!year || !month) {
+      return res.status(400).json({ error: 'year and month are required' });
+    }
+    // Allow Reviewer/Admin to save for other users
+    let targetUserId = req.user.id;
+    if (user_id && user_id !== req.user.id) {
+      if (req.user.role !== 'Reviewer' && !req.user.admin) {
+        return res.status(403).json({ error: 'Not authorized to save for other users' });
+      }
+      targetUserId = user_id;
     }
     const { rows } = await pool.query(
-      `INSERT INTO objectives (member, month, text)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (member, month) DO UPDATE SET text = EXCLUDED.text
+      `INSERT INTO monthly_objectives (user_id, year, month, objectives, updated_at)
+       VALUES ($1,$2,$3,$4, now())
+       ON CONFLICT (user_id, year, month) DO UPDATE SET
+         objectives = EXCLUDED.objectives,
+         updated_at = now()
        RETURNING *`,
-      [member, month, text || '']
+      [targetUserId, year, month, objectives || '']
     );
     res.status(201).json({ objective: rows[0] });
   } catch (err) {
@@ -37,36 +53,21 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT /:id — update an existing objective
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const { id } = req.params;
-    const { text } = req.body;
-    const { rows } = await pool.query(
-      'UPDATE objectives SET text = $1 WHERE id = $2 RETURNING *',
-      [text || '', id]
-    );
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'Objective not found' });
+    const { rows: existing } = await pool.query('SELECT user_id FROM monthly_objectives WHERE id = $1', [req.params.id]);
+    if (existing.length === 0) return res.status(404).json({ error: 'Not found' });
+    if (existing[0].user_id !== req.user.id && req.user.role !== 'Reviewer') {
+      return res.status(403).json({ error: 'Not authorized' });
     }
+    const { objectives } = req.body;
+    const { rows } = await pool.query(
+      'UPDATE monthly_objectives SET objectives = $1, updated_at = now() WHERE id = $2 RETURNING *',
+      [objectives || '', req.params.id]
+    );
     res.json({ objective: rows[0] });
   } catch (err) {
     console.error('PUT /objectives error:', err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// DELETE /:id — remove an objective
-router.delete('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { rowCount } = await pool.query('DELETE FROM objectives WHERE id = $1', [id]);
-    if (rowCount === 0) {
-      return res.status(404).json({ error: 'Objective not found' });
-    }
-    res.json({ deleted: true });
-  } catch (err) {
-    console.error('DELETE /objectives error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
