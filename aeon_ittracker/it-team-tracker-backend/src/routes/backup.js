@@ -14,9 +14,10 @@ router.get('/export', authMiddleware, async (req, res) => {
     const { rows: entries } = await pool.query('SELECT * FROM work_entries ORDER BY date DESC');
     const { rows: objectives } = await pool.query('SELECT * FROM monthly_objectives ORDER BY year DESC, month DESC');
     const { rows: emailAlerts } = await pool.query('SELECT * FROM email_alerts ORDER BY created_at');
+    const { rows: userSkills } = await pool.query('SELECT * FROM user_skills ORDER BY created_at');
 
     const backup = {
-      version: '2.1',
+      version: '2.2',
       exported_at: new Date().toISOString(),
       exported_by: req.user.name,
       tables: {
@@ -24,7 +25,8 @@ router.get('/export', authMiddleware, async (req, res) => {
         system_config: { count: config.length, data: config },
         work_entries: { count: entries.length, data: entries },
         monthly_objectives: { count: objectives.length, data: objectives },
-        email_alerts: { count: emailAlerts.length, data: emailAlerts }
+        email_alerts: { count: emailAlerts.length, data: emailAlerts },
+        user_skills: { count: userSkills.length, data: userSkills }
       }
     };
 
@@ -47,7 +49,7 @@ router.post('/restore', authMiddleware, async (req, res) => {
     if (!tables) return res.status(400).json({ error: 'Invalid backup format: missing tables' });
 
     const client = await pool.connect();
-    const results = { users: 0, system_config: 0, work_entries: 0, monthly_objectives: 0, email_alerts: 0 };
+    const results = { users: 0, system_config: 0, work_entries: 0, monthly_objectives: 0, email_alerts: 0, user_skills: 0 };
 
     try {
       await client.query('BEGIN');
@@ -130,6 +132,23 @@ router.post('/restore', authMiddleware, async (req, res) => {
         }
       }
 
+      // Restore user_skills
+      if (tables.user_skills && tables.user_skills.data) {
+        for (const s of tables.user_skills.data) {
+          await client.query(
+            `INSERT INTO user_skills (id, user_id, technical_skills, systems_experience, certifications, strengths, project_background, notes, created_at, updated_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+             ON CONFLICT (user_id) DO UPDATE SET
+               technical_skills = EXCLUDED.technical_skills, systems_experience = EXCLUDED.systems_experience,
+               certifications = EXCLUDED.certifications, strengths = EXCLUDED.strengths,
+               project_background = EXCLUDED.project_background, notes = EXCLUDED.notes,
+               updated_at = EXCLUDED.updated_at`,
+            [s.id, s.user_id, s.technical_skills, s.systems_experience, s.certifications, s.strengths, s.project_background, s.notes, s.created_at, s.updated_at]
+          );
+          results.user_skills++;
+        }
+      }
+
       await client.query('COMMIT');
       res.json({ success: true, restored: results });
     } catch (err) {
@@ -154,6 +173,7 @@ router.get('/status', authMiddleware, async (req, res) => {
     const { rows: [entryCount] } = await pool.query('SELECT COUNT(*) AS count FROM work_entries');
     const { rows: [objCount] } = await pool.query('SELECT COUNT(*) AS count FROM monthly_objectives');
     const { rows: [alertCount] } = await pool.query('SELECT COUNT(*) AS count FROM email_alerts');
+    const { rows: [skillsCount] } = await pool.query('SELECT COUNT(*) AS count FROM user_skills');
 
     res.json({
       status: 'ok',
@@ -162,7 +182,8 @@ router.get('/status', authMiddleware, async (req, res) => {
         system_config: parseInt(configCount.count),
         work_entries: parseInt(entryCount.count),
         monthly_objectives: parseInt(objCount.count),
-        email_alerts: parseInt(alertCount.count)
+        email_alerts: parseInt(alertCount.count),
+        user_skills: parseInt(skillsCount.count)
       }
     });
   } catch (err) {

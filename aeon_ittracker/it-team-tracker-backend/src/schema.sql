@@ -54,6 +54,9 @@ CREATE INDEX IF NOT EXISTS idx_entries_user ON work_entries(user_id);
 CREATE INDEX IF NOT EXISTS idx_entries_date ON work_entries(date);
 CREATE INDEX IF NOT EXISTS idx_entries_type ON work_entries(event_type);
 
+-- Add blockage_status column if missing
+ALTER TABLE work_entries ADD COLUMN IF NOT EXISTS blockage_status TEXT NOT NULL DEFAULT 'New';
+
 -- ============================================================
 -- Monthly Objectives
 -- ============================================================
@@ -167,7 +170,24 @@ WHERE NOT EXISTS (SELECT 1 FROM system_config WHERE type = 'SMTP' LIMIT 1);
 -- ============================================================
 INSERT INTO email_alerts (name, subject, body, recipient_role, schedule_day, schedule_time, enabled)
 SELECT 'Weekly PPP Reminder',
-       'Submit Weekly PPP for IT Tracker',
-       E'Please be reminded to submit your "Weekly PPP" on or before every Friday.\n\nIT Tracker: https://adg-it-tracker.zeabur.app/',
+       '[Reminder] Submit Weekly PPP for IT Tracker',
+       E'Please be reminded to submit your “Weekly PPP” on or before every Friday.',
        'General', 'Friday', '15:00', true
 WHERE NOT EXISTS (SELECT 1 FROM email_alerts LIMIT 1);
+
+-- ============================================================
+-- User Skills Profiles
+-- ============================================================
+CREATE TABLE IF NOT EXISTS user_skills (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id             UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  technical_skills    TEXT[] DEFAULT '{}',
+  systems_experience  TEXT[] DEFAULT '{}',
+  certifications      TEXT[] DEFAULT '{}',
+  strengths           TEXT DEFAULT '',
+  project_background  TEXT DEFAULT '',
+  notes               TEXT DEFAULT '',
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_skills_user ON user_skills(user_id);

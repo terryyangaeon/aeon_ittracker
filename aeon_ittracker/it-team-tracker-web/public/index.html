@@ -203,6 +203,49 @@ tr:hover td { background: var(--surface-alt); }
 .role-badge { font-size: .75rem; padding: .15rem .5rem; border-radius: 12px; font-weight: 600; }
 .role-badge.reviewer { background: var(--info-light); color: var(--info); }
 .role-badge.general { background: var(--success-light); color: var(--success); }
+
+/* Suggestions dropdown (autocomplete) */
+.suggestions-dropdown { position: absolute; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,.15); max-height: 150px; overflow-y: auto; z-index: 50; display: none; width: 100%; }
+.suggestions-dropdown .suggestion-item { padding: .4rem .75rem; font-size: .82rem; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.suggestions-dropdown .suggestion-item:hover, .suggestions-dropdown .suggestion-item.active { background: var(--primary-light); }
+
+/* Skill tags */
+.skill-tag { display: inline-block; background: var(--primary-light); color: var(--primary); padding: .15rem .5rem; border-radius: 12px; font-size: .75rem; margin: .15rem; font-weight: 500; }
+.skill-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: .75rem; }
+.skill-card h4 { font-size: .95rem; margin-bottom: .5rem; color: var(--primary); }
+
+/* Heatmap */
+.heatmap-table { border-collapse: collapse; width: 100%; font-size: .75rem; }
+.heatmap-table th { padding: .3rem .4rem; font-size: .7rem; text-align: center; white-space: nowrap; }
+.heatmap-table td { padding: .3rem .4rem; text-align: center; border: 1px solid var(--border); min-width: 36px; }
+.heatmap-0 { background: var(--surface); }
+.heatmap-1 { background: #d8f3dc; }
+.heatmap-2 { background: #95d5b2; }
+.heatmap-3 { background: #52b788; color: #fff; }
+.heatmap-4 { background: #2d6a4f; color: #fff; }
+[data-theme="dark"] .heatmap-1 { background: #1b3a2a; }
+[data-theme="dark"] .heatmap-2 { background: #2d5a3f; color: #fff; }
+
+/* RAG dots */
+.rag-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; vertical-align: middle; }
+.rag-green { background: var(--success); }
+.rag-amber { background: var(--warning); }
+.rag-red { background: var(--danger); }
+
+/* Blocker card */
+.blocker-card { border-left: 3px solid var(--warning); padding: .6rem .75rem; margin-bottom: .5rem; background: var(--surface-alt); border-radius: 0 var(--radius) var(--radius) 0; }
+.blocker-card.severe { border-left-color: var(--danger); }
+.blocker-card .blocker-user { font-weight: 600; font-size: .85rem; }
+.blocker-card .blocker-text { font-size: .82rem; color: var(--text-muted); margin-top: .25rem; }
+.blocker-card .blocker-badge { display: inline-block; font-size: .7rem; font-weight: 600; padding: .1rem .4rem; border-radius: 8px; background: var(--warning-light); color: var(--warning); }
+.blocker-card.severe .blocker-badge { background: var(--danger-light); color: var(--danger); }
+
+/* Site allocation bars */
+.alloc-bar-row { display: flex; align-items: center; gap: .5rem; margin-bottom: .35rem; }
+.alloc-bar-label { width: 100px; font-size: .78rem; text-align: right; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.alloc-bar-track { flex: 1; height: 20px; background: var(--surface-alt); border-radius: 4px; overflow: hidden; }
+.alloc-bar-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width .4s; min-width: 2px; }
+.alloc-bar-val { width: 30px; font-size: .8rem; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -210,6 +253,7 @@ tr:hover td { background: var(--surface-alt); }
 <!-- ==================== LOGIN ==================== -->
 <div id="login-view">
   <div class="login-card">
+    <div style="text-align:center;margin-bottom:1rem"><img src="logo.png" alt="AEON Delight" style="height:80px;width:auto"></div>
     <h1>IT Team Tracker</h1>
     <p>Daily attendance, weekly PPP reports, and monthly objectives.</p>
     <div id="login-error" class="login-error"></div>
@@ -228,17 +272,22 @@ tr:hover td { background: var(--surface-alt); }
 <!-- ==================== APP SHELL ==================== -->
 <div id="app">
   <header id="ribbon">
-    <span class="logo">IT Team Tracker</span>
+    <a href="#" onclick="switchView('dashboard');return false" style="display:flex;align-items:center;gap:.5rem;text-decoration:none;color:#fff">
+      <img src="logo.png" alt="AEON Delight" style="height:calc(var(--ribbon-h) - 12px);width:auto;object-fit:contain">
+      <span class="logo">IT Team Tracker</span>
+    </a>
     <nav id="main-nav">
       <button data-view="dashboard" class="active">Dashboard</button>
       <button data-view="daily">Daily Work</button>
       <button data-view="weekly">Weekly PPP</button>
       <button data-view="monthly">Monthly Objectives</button>
+      <button data-view="skills">Skills Profile</button>
       <button data-view="reports" id="nav-reports" style="display:none">Report</button>
       <button data-view="accounts" id="nav-accounts" style="display:none">Account Management</button>
       <button data-view="config" id="nav-config" style="display:none">System Config</button>
     </nav>
     <div class="user-menu">
+      <a href="IT_Team_Tracker_User_Guide.pdf" target="_blank" style="color:rgba(255,255,255,.8);font-size:.8rem;padding:.3rem .6rem;border:1px solid rgba(255,255,255,.3);border-radius:var(--radius);text-decoration:none;white-space:nowrap" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background=''">User Guide</a>
       <span class="user-name" id="user-display" onclick="toggleUserMenu()"></span>
       <div class="user-dropdown" id="user-dropdown">
         <button onclick="showChangePin()">Change PIN</button>
@@ -262,6 +311,18 @@ tr:hover td { background: var(--surface-alt); }
           <div class="bar-chart" id="dash-outside-chart" style="overflow:visible"></div>
         </div>
       </div>
+      <!-- Analytics panels (Admin/Reviewer only) -->
+      <div id="dash-analytics" style="display:none">
+        <div class="card" style="margin-top:.75rem">
+          <h3 style="margin-bottom:.5rem">Site Allocation</h3>
+          <div id="dash-site-allocation"></div>
+        </div>
+        <div class="card" style="margin-top:.75rem">
+          <h3 style="margin-bottom:.5rem">Blocker Escalation</h3>
+          <div id="dash-blocker-escalation"></div>
+        </div>
+      </div>
+
       <div class="card" style="margin-top:1rem">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem">
           <h3 style="margin:0">Daily Work</h3>
@@ -308,9 +369,10 @@ tr:hover td { background: var(--surface-alt); }
             </div>
           </div>
           <div style="display:flex;flex-direction:column">
-            <div class="field" style="margin:0;display:flex;flex-direction:column;flex:1">
+            <div class="field" style="margin:0;display:flex;flex-direction:column;flex:1;position:relative">
               <label for="daily-desc">Description</label>
-              <textarea id="daily-desc" rows="5" placeholder="Work completed today..." style="flex:1;min-height:60px"></textarea>
+              <textarea id="daily-desc" rows="5" placeholder="Work completed today..." style="flex:1;min-height:60px" autocomplete="off"></textarea>
+              <div id="daily-suggestions" class="suggestions-dropdown"></div>
             </div>
             <div style="display:flex;gap:.5rem;margin-top:.4rem;justify-content:flex-end">
               <button class="btn btn-outline" onclick="saveDaily('Draft')">Save Draft</button>
@@ -462,6 +524,58 @@ tr:hover td { background: var(--surface-alt); }
       </div>
     </div>
 
+    <!-- ========== SKILLS PROFILE ========== -->
+    <div id="skills-view" class="view">
+      <h2 style="margin-bottom:1rem">Skills Profile</h2>
+      <div id="skills-user-selector" style="display:none;margin-bottom:1rem">
+        <select id="skills-user-filter" class="btn btn-outline" style="padding:.4rem .6rem;font-size:.85rem">
+          <option value="">My Profile</option>
+        </select>
+      </div>
+      <div class="card" id="skills-form-card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div>
+            <div class="field">
+              <label for="skills-tech">Technical Skills</label>
+              <input id="skills-tech" placeholder="e.g. Networking, CCTV, IoT, Python, SQL">
+              <small style="color:var(--text-muted);font-size:.75rem">Comma-separated tags</small>
+            </div>
+            <div class="field">
+              <label for="skills-systems">Systems Experience</label>
+              <input id="skills-systems" placeholder="e.g. CMMS, iTimex, SAP, Active Directory">
+              <small style="color:var(--text-muted);font-size:.75rem">Comma-separated tags</small>
+            </div>
+            <div class="field">
+              <label for="skills-certs">Certifications</label>
+              <input id="skills-certs" placeholder="e.g. CCNA, CompTIA A+, PMP">
+              <small style="color:var(--text-muted);font-size:.75rem">Comma-separated tags</small>
+            </div>
+          </div>
+          <div>
+            <div class="field">
+              <label for="skills-strengths">Strengths</label>
+              <textarea id="skills-strengths" rows="3" placeholder="Key strengths and expertise areas..."></textarea>
+            </div>
+            <div class="field">
+              <label for="skills-projects">Project Background</label>
+              <textarea id="skills-projects" rows="3" placeholder="Notable projects and experience..."></textarea>
+            </div>
+            <div class="field">
+              <label for="skills-notes">Notes</label>
+              <textarea id="skills-notes" rows="2" placeholder="Additional notes..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;margin-top:.75rem;justify-content:flex-end">
+          <button class="btn btn-primary" onclick="saveSkills()">Save Profile</button>
+        </div>
+      </div>
+      <div id="skills-team-overview" style="display:none;margin-top:1.5rem">
+        <h3 style="margin-bottom:.75rem">Team Skills Overview</h3>
+        <div id="skills-team-cards"></div>
+      </div>
+    </div>
+
     <!-- ========== REPORTS ========== -->
     <div id="reports-view" class="view">
       <h2 style="margin-bottom:1rem">Report</h2>
@@ -494,6 +608,23 @@ tr:hover td { background: var(--surface-alt); }
           </button>
         </div>
         <p style="color:var(--text-muted);font-size:.8rem;margin-top:.5rem">Generates a PDF showing each general user's monthly objectives for the selected month.</p>
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-bottom:.75rem">Daily Work Report</h3>
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+          <div class="field" style="margin:0">
+            <label for="report-daily-from" style="font-size:.85rem;font-weight:600">From (Monday)</label>
+            <input type="date" id="report-daily-from" style="padding:.4rem .6rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg)">
+          </div>
+          <div class="field" style="margin:0">
+            <label for="report-daily-to" style="font-size:.85rem;font-weight:600">To (Friday)</label>
+            <input type="date" id="report-daily-to" style="padding:.4rem .6rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg)">
+          </div>
+          <button class="btn btn-primary" onclick="generateDailyWorkReport()" style="align-self:flex-end">
+            📄 Generate PDF
+          </button>
+        </div>
+        <p style="color:var(--text-muted);font-size:.8rem;margin-top:.5rem">Generates a PDF summary of all General and Reviewer users' daily work entries for the selected date range.</p>
       </div>
     </div>
 
@@ -638,7 +769,7 @@ async function loadUsers() {
     allUsers = data.users;
     const sel = document.getElementById('dash-user-filter');
     sel.innerHTML = '<option value="">All Users</option>';
-    allUsers.filter(u => u.role === 'General').forEach(u => {
+    allUsers.filter(u => u.role === 'General' || u.role === 'Reviewer').forEach(u => {
       sel.innerHTML += '<option value="' + u.id + '">' + esc(u.name) + '</option>';
     });
   } catch (e) {
@@ -670,6 +801,7 @@ function switchView(name) {
   else if (name === 'daily') { setDefaultDailyDate(); loadDailyWeek(); }
   else if (name === 'weekly') { setDefaultWeeklyDate(); loadWeeklyWeek(); }
   else if (name === 'monthly') { initMonthSelectors(); loadObjectives(); }
+  else if (name === 'skills') loadSkillsView();
   else if (name === 'config') { loadConfigView(); loadEmailAlerts(); }
   else if (name === 'reports') initReportWeek();
   else if (name === 'accounts') loadAccounts();
@@ -724,6 +856,13 @@ function setDefaultDailyDate() {
 
 function setDefaultWeeklyDate() {
   document.getElementById('weekly-date').value = getFriday(today());
+  document.getElementById('weekly-desc').value = '';
+  document.getElementById('weekly-blockage').value = '';
+  document.getElementById('weekly-blockage').style.background = '';
+  document.getElementById('weekly-blockage').style.color = '';
+  document.getElementById('weekly-next').value = '';
+  weeklyEditingDate = null;
+  loadWeeklyEntry(getFriday(today()));
 }
 
 // ==================== DASHBOARD ====================
@@ -740,6 +879,15 @@ async function loadDashboard() {
     renderOutsideChart(data);
     renderDashEntries(data.dailyEntries);
     loadDashMonthlyObjective();
+
+    // Analytics panels for Admin/Reviewer
+    const analyticsEl = document.getElementById('dash-analytics');
+    if (currentUser && (currentUser.admin || currentUser.role === 'Reviewer')) {
+      analyticsEl.style.display = 'block';
+      loadDashAnalytics(monday, friday);
+    } else {
+      analyticsEl.style.display = 'none';
+    }
   } catch (e) {
     console.error('Dashboard error:', e);
     toast('Failed to load dashboard');
@@ -908,7 +1056,7 @@ function renderDashEntries(entries) {
     '<td>' + fmtDate(e.date) + '</td>' +
     '<td>' + esc(e.user_name) + '</td>' +
     '<td>' + (e.sites || []).map(s => esc(s)).join(', ') + '</td>' +
-    '<td>' + esc(truncate(e.description, 60)) + '</td>' +
+    '<td title="' + esc(e.description || '') + '" style="cursor:default">' + esc(truncate(e.description, 60)) + '</td>' +
     '<td>' + leaveStr(e) + '</td>' +
     '<td>' + statusBadge(e.status) + '</td>' +
     '</tr>').join('');
@@ -1094,6 +1242,26 @@ async function editWeekly(id, date) {
 }
 
 let weeklyEditingDate = null; // tracks which date is being edited
+
+async function loadWeeklyEntry(date) {
+  if (!date) return;
+  try {
+    const data = await api('/entries?event_type=Weekly&user_id=' + currentUser.id +
+      '&date_from=' + date + '&date_to=' + date);
+    if (data.entries && data.entries.length > 0) {
+      const e = data.entries[0];
+      document.getElementById('weekly-desc').value = e.description || '';
+      document.getElementById('weekly-blockage').value = e.blockage || '';
+      const bTA = document.getElementById('weekly-blockage');
+      bTA.style.background = (e.blockage && e.blockage.trim()) ? 'rgba(220,53,69,.25)' : '';
+      bTA.style.color = (e.blockage && e.blockage.trim()) ? '#ff6b6b' : '';
+      document.getElementById('weekly-next').value = e.next_week_target || '';
+      weeklyEditingDate = date;
+    }
+  } catch (e) {
+    console.error('Load weekly entry error:', e);
+  }
+}
 
 async function saveWeekly(status) {
   const date = document.getElementById('weekly-date').value;
@@ -1438,7 +1606,8 @@ async function loadBackupStatus() {
       c.system_config + ' config items, ' +
       c.work_entries + ' work entries, ' +
       c.monthly_objectives + ' objectives, ' +
-      (c.email_alerts || 0) + ' email alerts';
+      (c.email_alerts || 0) + ' email alerts, ' +
+      (c.user_skills || 0) + ' skill profiles';
   } catch (e) {
     document.getElementById('backup-status').innerHTML =
       '<strong>Database Status:</strong> <span style="color:var(--danger)">Error - ' + e.message + '</span>';
@@ -1598,19 +1767,27 @@ document.getElementById('weekly-date').addEventListener('input', function() {
   const d = new Date(val);
   const day = d.getDay(); // 0=Sun, 5=Fri
   if (day !== 5) {
-    // Snap to nearest Friday
     const diff = 5 - day;
     const adjusted = diff > 0 ? diff : diff + 7;
     d.setDate(d.getDate() + adjusted);
     this.value = d.toISOString().slice(0, 10);
     toast('Date adjusted to Friday');
   }
+  document.getElementById('weekly-desc').value = '';
+  document.getElementById('weekly-blockage').value = '';
+  document.getElementById('weekly-blockage').style.background = '';
+  document.getElementById('weekly-blockage').style.color = '';
+  document.getElementById('weekly-next').value = '';
+  weeklyEditingDate = null;
+  loadWeeklyEntry(this.value);
 });
 
 // ==================== REPORTS ====================
 function initReportWeek() {
   document.getElementById('report-week-from').value = getMonday(today());
   document.getElementById('report-week-to').value = getFriday(today());
+  document.getElementById('report-daily-from').value = getMonday(today());
+  document.getElementById('report-daily-to').value = getFriday(today());
   initReportObjMonth();
 }
 
@@ -1957,6 +2134,536 @@ async function generateMonthlyObjReport() {
     toast('Report downloaded: ' + filename);
   } catch (e) {
     console.error('Monthly objective report error:', e);
+    toast('Failed to generate report: ' + e.message);
+  }
+}
+
+// ==================== SMART DEFAULTS & AUTOCOMPLETE ====================
+let _smartDefaultsLoaded = false;
+async function loadSmartDefaults() {
+  if (_smartDefaultsLoaded) return;
+  try {
+    const data = await api('/suggestions/defaults');
+    if (!data.frequentSites || data.frequentSites.length === 0) return;
+    const container = document.getElementById('daily-sites');
+    const checked = container.querySelectorAll('input[type="checkbox"]:checked');
+    const descEl = document.getElementById('daily-desc');
+    if (checked.length === 0 && (!descEl.value || !descEl.value.trim())) {
+      data.frequentSites.forEach(site => {
+        const cb = container.querySelector('input[value="' + site + '"]');
+        if (cb) cb.checked = true;
+      });
+      _smartDefaultsLoaded = true;
+    }
+  } catch (e) { console.error('Smart defaults error:', e); }
+}
+
+let _suggestTimer = null;
+let _suggestIdx = -1;
+function initDescriptionAutocomplete() {
+  const ta = document.getElementById('daily-desc');
+  const dd = document.getElementById('daily-suggestions');
+  if (!ta || !dd) return;
+
+  ta.addEventListener('input', () => {
+    clearTimeout(_suggestTimer);
+    _suggestTimer = setTimeout(async () => {
+      const val = ta.value;
+      const lines = val.split('\n');
+      const lastLine = lines[lines.length - 1].trim();
+      if (lastLine.length < 2) { dd.style.display = 'none'; return; }
+      try {
+        const data = await api('/suggestions/descriptions?q=' + encodeURIComponent(lastLine));
+        if (data.descriptions && data.descriptions.length > 0) {
+          _suggestIdx = -1;
+          dd.innerHTML = data.descriptions.slice(0, 5).map((d, i) =>
+            '<div class="suggestion-item" data-idx="' + i + '">' + esc(d) + '</div>'
+          ).join('');
+          dd.style.display = 'block';
+          dd.querySelectorAll('.suggestion-item').forEach(el => {
+            el.addEventListener('mousedown', e => {
+              e.preventDefault();
+              selectSuggestion(el.textContent);
+            });
+          });
+        } else {
+          dd.style.display = 'none';
+        }
+      } catch (e) { dd.style.display = 'none'; }
+    }, 300);
+  });
+
+  ta.addEventListener('keydown', e => {
+    if (dd.style.display === 'none') return;
+    const items = dd.querySelectorAll('.suggestion-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      _suggestIdx = Math.min(_suggestIdx + 1, items.length - 1);
+      items.forEach((el, i) => el.classList.toggle('active', i === _suggestIdx));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      _suggestIdx = Math.max(_suggestIdx - 1, 0);
+      items.forEach((el, i) => el.classList.toggle('active', i === _suggestIdx));
+    } else if (e.key === 'Enter' && _suggestIdx >= 0) {
+      e.preventDefault();
+      selectSuggestion(items[_suggestIdx].textContent);
+    } else if (e.key === 'Escape') {
+      dd.style.display = 'none';
+    }
+  });
+
+  ta.addEventListener('blur', () => { setTimeout(() => { dd.style.display = 'none'; }, 150); });
+}
+
+function selectSuggestion(text) {
+  const ta = document.getElementById('daily-desc');
+  const dd = document.getElementById('daily-suggestions');
+  const lines = ta.value.split('\n');
+  lines[lines.length - 1] = text;
+  ta.value = lines.join('\n');
+  dd.style.display = 'none';
+  ta.focus();
+}
+
+// Reset smart defaults when date changes
+document.addEventListener('DOMContentLoaded', () => {
+  initDescriptionAutocomplete();
+  const dateEl = document.getElementById('daily-date');
+  if (dateEl) dateEl.addEventListener('change', () => { _smartDefaultsLoaded = false; });
+});
+
+// ==================== SKILLS PROFILE ====================
+let _skillsUserId = null;
+
+async function loadSkillsView() {
+  const selectorDiv = document.getElementById('skills-user-selector');
+  const teamDiv = document.getElementById('skills-team-overview');
+
+  if (currentUser.admin || currentUser.role === 'Reviewer') {
+    selectorDiv.style.display = 'block';
+    teamDiv.style.display = 'block';
+    const sel = document.getElementById('skills-user-filter');
+    if (sel.options.length <= 1) {
+      try {
+        const data = await api('/auth/users');
+        data.users.forEach(u => {
+          const opt = document.createElement('option');
+          opt.value = u.id;
+          opt.textContent = u.name + ' (' + u.role + ')';
+          sel.appendChild(opt);
+        });
+      } catch (e) { console.error('Load users for skills error:', e); }
+    }
+    sel.onchange = () => {
+      _skillsUserId = sel.value || null;
+      loadSkillProfile(_skillsUserId);
+    };
+    loadTeamSkills();
+  } else {
+    selectorDiv.style.display = 'none';
+    teamDiv.style.display = 'none';
+  }
+
+  _skillsUserId = null;
+  loadSkillProfile(null);
+}
+
+async function loadSkillProfile(userId) {
+  try {
+    const url = userId ? '/skills?user_id=' + userId : '/skills';
+    const data = await api(url);
+    const p = data.profile;
+    document.getElementById('skills-tech').value = p ? (p.technical_skills || []).join(', ') : '';
+    document.getElementById('skills-systems').value = p ? (p.systems_experience || []).join(', ') : '';
+    document.getElementById('skills-certs').value = p ? (p.certifications || []).join(', ') : '';
+    document.getElementById('skills-strengths').value = p ? (p.strengths || '') : '';
+    document.getElementById('skills-projects').value = p ? (p.project_background || '') : '';
+    document.getElementById('skills-notes').value = p ? (p.notes || '') : '';
+  } catch (e) {
+    console.error('Load skill profile error:', e);
+  }
+}
+
+async function saveSkills() {
+  const parseTags = val => val.split(',').map(s => s.trim()).filter(Boolean);
+  const body = {
+    technical_skills: parseTags(document.getElementById('skills-tech').value),
+    systems_experience: parseTags(document.getElementById('skills-systems').value),
+    certifications: parseTags(document.getElementById('skills-certs').value),
+    strengths: document.getElementById('skills-strengths').value.trim(),
+    project_background: document.getElementById('skills-projects').value.trim(),
+    notes: document.getElementById('skills-notes').value.trim()
+  };
+  if (_skillsUserId) body.user_id = _skillsUserId;
+  try {
+    await api('/skills', { method: 'POST', body: JSON.stringify(body) });
+    toast('Skills profile saved');
+    if (currentUser.admin || currentUser.role === 'Reviewer') loadTeamSkills();
+  } catch (e) {
+    console.error('Save skills error:', e);
+    toast('Failed to save: ' + e.message);
+  }
+}
+
+async function loadTeamSkills() {
+  try {
+    const data = await api('/skills/all');
+    const container = document.getElementById('skills-team-cards');
+    if (!data.profiles || data.profiles.length === 0) {
+      container.innerHTML = '<p style="color:var(--text-muted)">No skill profiles found.</p>';
+      return;
+    }
+    container.innerHTML = data.profiles.map(p => {
+      const tags = (arr) => (arr || []).map(t => '<span class="skill-tag">' + esc(t) + '</span>').join('') || '<span style="color:var(--text-muted);font-size:.78rem">Not set</span>';
+      return '<div class="skill-card">' +
+        '<h4>' + esc(p.user_name) + ' <span style="font-weight:400;font-size:.8rem;color:var(--text-muted)">(' + esc(p.role || '') + ')</span></h4>' +
+        '<div style="margin-bottom:.4rem"><strong style="font-size:.78rem">Technical Skills:</strong> ' + tags(p.technical_skills) + '</div>' +
+        '<div style="margin-bottom:.4rem"><strong style="font-size:.78rem">Systems:</strong> ' + tags(p.systems_experience) + '</div>' +
+        '<div style="margin-bottom:.4rem"><strong style="font-size:.78rem">Certifications:</strong> ' + tags(p.certifications) + '</div>' +
+        (p.strengths ? '<div style="font-size:.82rem;margin-bottom:.25rem"><strong style="font-size:.78rem">Strengths:</strong> ' + esc(p.strengths) + '</div>' : '') +
+        (p.project_background ? '<div style="font-size:.82rem"><strong style="font-size:.78rem">Projects:</strong> ' + esc(p.project_background) + '</div>' : '') +
+        '</div>';
+    }).join('');
+  } catch (e) {
+    console.error('Load team skills error:', e);
+  }
+}
+
+// ==================== DASHBOARD ANALYTICS ====================
+async function loadDashAnalytics(monday, friday) {
+  loadSiteAllocation(monday, friday);
+  loadBlockerEscalation();
+}
+
+async function loadHeatmap() {
+  try {
+    const data = await api('/dashboard/workload-heatmap?weeks=8');
+    renderWorkloadHeatmap(data);
+  } catch (e) {
+    console.error('Heatmap error:', e);
+    document.getElementById('dash-heatmap').innerHTML = '<p style="color:var(--text-muted);font-size:.82rem">Unable to load heatmap.</p>';
+  }
+}
+
+function renderWorkloadHeatmap(data) {
+  const el = document.getElementById('dash-heatmap');
+  if (!data.weeks || data.weeks.length === 0 || !data.users || data.users.length === 0) {
+    el.innerHTML = '<p style="color:var(--text-muted);font-size:.82rem">No data available.</p>';
+    return;
+  }
+  const lookup = {};
+  data.heatmap.forEach(r => {
+    const wk = typeof r.week_start === 'string' ? r.week_start.slice(0, 10) : new Date(r.week_start).toISOString().slice(0, 10);
+    lookup[r.user_name + '|' + wk] = r.entry_count;
+  });
+
+  const maxCount = Math.max(1, ...data.heatmap.map(r => r.entry_count));
+  const heatClass = c => {
+    if (c === 0) return 'heatmap-0';
+    const ratio = c / maxCount;
+    if (ratio <= 0.25) return 'heatmap-1';
+    if (ratio <= 0.5) return 'heatmap-2';
+    if (ratio <= 0.75) return 'heatmap-3';
+    return 'heatmap-4';
+  };
+
+  let html = '<table class="heatmap-table"><thead><tr><th style="text-align:left">User</th>';
+  data.weeks.forEach(w => {
+    const d = new Date(w + 'T00:00:00');
+    html += '<th>' + fmtDate(w).slice(0, 5) + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  data.users.forEach(user => {
+    html += '<tr><td style="text-align:left;font-weight:600;white-space:nowrap">' + esc(user) + '</td>';
+    data.weeks.forEach(w => {
+      const cnt = lookup[user + '|' + w] || 0;
+      html += '<td class="' + heatClass(cnt) + '" title="' + esc(user) + ': ' + cnt + ' entries">' + cnt + '</td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+async function loadSiteAllocation(from, to) {
+  try {
+    const data = await api('/dashboard/site-allocation?date_from=' + from + '&date_to=' + to);
+    renderSiteAllocation(data);
+  } catch (e) {
+    console.error('Site allocation error:', e);
+    document.getElementById('dash-site-allocation').innerHTML = '<p style="color:var(--text-muted);font-size:.82rem">Unable to load.</p>';
+  }
+}
+
+function renderSiteAllocation(data) {
+  const el = document.getElementById('dash-site-allocation');
+  if (!data.allocation || data.allocation.length === 0) {
+    el.innerHTML = '<p style="color:var(--text-muted);font-size:.82rem">No site data for this period.</p>';
+    return;
+  }
+  const max = Math.max(1, ...data.allocation.map(a => a.visit_count));
+  el.innerHTML = data.allocation.map(a => {
+    const pct = Math.round((a.visit_count / max) * 100);
+    return '<div class="alloc-bar-row">' +
+      '<span class="alloc-bar-label">' + esc(a.site) + '</span>' +
+      '<div class="alloc-bar-track"><div class="alloc-bar-fill" style="width:' + pct + '%"></div></div>' +
+      '<span class="alloc-bar-val">' + a.visit_count + '</span>' +
+      '</div>';
+  }).join('');
+}
+
+async function loadObjectiveProgress(year, month) {
+  try {
+    const data = await api('/dashboard/objective-progress?year=' + year + '&month=' + month);
+    renderObjectiveProgress(data);
+  } catch (e) {
+    console.error('Objective progress error:', e);
+    document.getElementById('dash-objective-progress').innerHTML = '<p style="color:var(--text-muted);font-size:.82rem">Unable to load.</p>';
+  }
+}
+
+function renderObjectiveProgress(data) {
+  const el = document.getElementById('dash-objective-progress');
+  if (!data.progress || data.progress.length === 0) {
+    el.innerHTML = '<p style="color:var(--text-muted);font-size:.82rem">No data available.</p>';
+    return;
+  }
+  let html = '<div class="tbl-wrap"><table><thead><tr>' +
+    '<th>User</th><th>Objective</th><th style="text-align:center">Entries</th>' +
+    '<th style="text-align:center">Working Days</th><th style="text-align:center">Status</th>' +
+    '</tr></thead><tbody>';
+
+  data.progress.forEach(p => {
+    const objTrunc = p.objective_text ? truncate(p.objective_text.replace(/\n/g, '; '), 50) : '<span style="color:var(--danger);font-style:italic">Not set</span>';
+    html += '<tr>' +
+      '<td style="font-weight:600">' + esc(p.user_name) + '</td>' +
+      '<td title="' + esc(p.objective_text || '') + '">' + (p.objective_text ? esc(truncate(p.objective_text.replace(/\n/g, '; '), 50)) : '<span style="color:var(--danger);font-style:italic">Not set</span>') + '</td>' +
+      '<td style="text-align:center">' + p.entries_count + '</td>' +
+      '<td style="text-align:center">' + p.working_days + '</td>' +
+      '<td style="text-align:center"><span class="rag-dot rag-' + p.rag_status + '" title="' + p.rag_status.toUpperCase() + '"></span></td>' +
+      '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  el.innerHTML = html;
+}
+
+async function loadBlockerEscalation() {
+  try {
+    const data = await api('/dashboard/blocker-escalation');
+    renderBlockerEscalation(data);
+  } catch (e) {
+    console.error('Blocker escalation error:', e);
+    document.getElementById('dash-blocker-escalation').innerHTML = '<p style="color:var(--text-muted);font-size:.82rem">Unable to load.</p>';
+  }
+}
+
+function renderBlockerEscalation(data) {
+  const el = document.getElementById('dash-blocker-escalation');
+  const blockers = data.blockers || [];
+  if (blockers.length === 0) {
+    el.innerHTML = '<p style="color:var(--success);font-size:.85rem;font-weight:500">No blockers reported.</p>';
+    return;
+  }
+
+  el.innerHTML = '<div class="tbl-wrap"><table><thead><tr>' +
+    '<th>Week</th><th>User</th><th>Blocker</th><th style="text-align:center">Status</th><th style="text-align:center">Actions</th>' +
+    '</tr></thead><tbody>' +
+    blockers.map(b => {
+      const isOwner = currentUser && (b.user_id === currentUser.id || currentUser.admin || currentUser.role === 'Reviewer');
+      const status = b.blockage_status || 'New';
+      const isResolved = status === 'Resolved';
+      const statusHtml = isResolved
+        ? '<span class="badge badge-submitted">Resolved</span>'
+        : '<span class="badge badge-draft">New</span>';
+      const toggleBtn = isOwner
+        ? '<button class="btn btn-sm ' + (isResolved ? 'btn-outline' : 'btn-primary') + '" onclick="toggleBlockerStatus(\'' + b.id + '\',\'' + (isResolved ? 'New' : 'Resolved') + '\')" style="padding:.2rem .5rem;font-size:.7rem">' + (isResolved ? 'Reopen' : 'Resolve') + '</button>'
+        : '';
+      return '<tr style="' + (isResolved ? 'opacity:.6' : '') + '">' +
+        '<td>' + fmtDate(b.date) + '</td>' +
+        '<td style="font-weight:600">' + esc(b.user_name) + '</td>' +
+        '<td title="' + esc(b.blockage) + '">' + esc(truncate(b.blockage, 80)) + '</td>' +
+        '<td style="text-align:center">' + statusHtml + '</td>' +
+        '<td style="text-align:center">' + toggleBtn + '</td>' +
+        '</tr>';
+    }).join('') +
+    '</tbody></table></div>';
+}
+
+async function toggleBlockerStatus(entryId, newStatus) {
+  try {
+    await api('/dashboard/blocker-status/' + entryId, {
+      method: 'PATCH',
+      body: JSON.stringify({ blockage_status: newStatus })
+    });
+    toast('Blocker status updated to ' + newStatus);
+    loadBlockerEscalation();
+  } catch (e) {
+    console.error('Toggle blocker status error:', e);
+    toast('Failed to update: ' + e.message);
+  }
+}
+
+// ==================== DAILY WORK REPORT ====================
+async function generateDailyWorkReport() {
+  const dateFrom = document.getElementById('report-daily-from').value;
+  const dateTo = document.getElementById('report-daily-to').value;
+  if (!dateFrom || !dateTo) { toast('Please select date range'); return; }
+
+  try {
+    toast('Generating report...');
+    const dashData = await api('/dashboard/weekly-summary?monday=' + dateFrom + '&friday=' + dateTo);
+    const entries = dashData.dailyEntries || [];
+    const pu = dashData.perUser || {};
+
+    // Calculate metrics
+    let totalSubmitted = 0, totalExpected = 0;
+    Object.values(pu).forEach(v => { totalSubmitted += v.submitted; totalExpected += v.total; });
+
+    // Build PDF (landscape)
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('landscape', 'mm', 'a4');
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 14;
+    let y = margin;
+
+    // Title
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Daily Work Report', margin, y);
+    y += 7;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100);
+    doc.text('Period: ' + fmtDate(dateFrom) + ' — ' + fmtDate(dateTo), margin, y);
+    doc.text('Generated: ' + fmtDate(today()) + ' ' + new Date().toLocaleTimeString(), pageW - margin, y, { align: 'right' });
+    doc.setTextColor(0);
+    y += 4;
+
+    // Divider
+    doc.setDrawColor(45, 106, 79);
+    doc.setLineWidth(0.8);
+    doc.line(margin, y, pageW - margin, y);
+    y += 6;
+
+    // Summary metrics boxes
+    const boxW = (pageW - margin * 2 - 18) / 4;
+    const boxH = 18;
+    const boxes = [
+      { label: 'SUBMITTED', value: String(totalSubmitted), color: [46, 125, 50] },
+      { label: 'NON-SUBMITTED', value: String(totalExpected - totalSubmitted), color: [211, 47, 47] },
+      { label: 'TOTAL ENTRIES', value: String(entries.length), color: [21, 101, 192] },
+      { label: 'USERS', value: String(Object.keys(pu).length), color: [100, 100, 100] }
+    ];
+    boxes.forEach((b, i) => {
+      const bx = margin + i * (boxW + 6);
+      doc.setFillColor(245, 245, 240);
+      doc.roundedRect(bx, y, boxW, boxH, 2, 2, 'F');
+      doc.setDrawColor(200);
+      doc.roundedRect(bx, y, boxW, boxH, 2, 2, 'S');
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(100);
+      doc.text(b.label, bx + boxW / 2, y + 6, { align: 'center' });
+      doc.setFontSize(16);
+      doc.setTextColor(b.color[0], b.color[1], b.color[2]);
+      doc.text(b.value, bx + boxW / 2, y + 14.5, { align: 'center' });
+    });
+    y += boxH + 4;
+
+    // Submission status per user table
+    doc.setTextColor(0);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Submission Status per User', margin, y + 3);
+    y += 5;
+
+    const statusRows = Object.entries(pu).map(([name, v]) => {
+      return [name, String(v.submitted), String(v.total - v.submitted), String(v.outsideDays), String(v.leaveDays || 0)];
+    });
+
+    doc.autoTable({
+      startY: y,
+      head: [['User', 'Submitted', 'Non-Submitted', 'Outside Work Days', 'Leave Days']],
+      body: statusRows,
+      margin: { left: margin, right: margin },
+      styles: { fontSize: 7, cellPadding: 1.5 },
+      headStyles: { fillColor: [45, 106, 79], textColor: 255, fontStyle: 'bold', fontSize: 7 },
+      alternateRowStyles: { fillColor: [248, 248, 245] },
+      theme: 'grid'
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // Daily entries table
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0);
+    doc.text('Daily Work Entries', margin, y + 3);
+    y += 5;
+
+    if (entries.length === 0) {
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(8);
+      doc.setTextColor(120);
+      doc.text('No daily work entries found for this period.', margin, y + 4);
+    } else {
+      const sorted = entries.slice().sort((a, b) => {
+        const nameComp = (a.user_name || '').localeCompare(b.user_name || '');
+        if (nameComp !== 0) return nameComp;
+        return (a.date || '').localeCompare(b.date || '');
+      });
+      const entryRows = sorted.map(e => {
+        const leave = [];
+        if (e.leave_am) leave.push('AM');
+        if (e.leave_pm) leave.push('PM');
+        return [
+          e.user_name || 'Unknown',
+          fmtDate(e.date),
+          (e.sites || []).join(', '),
+          (e.description || '').substring(0, 120),
+          leave.join(', ') || '-',
+          e.status || ''
+        ];
+      });
+
+      doc.autoTable({
+        startY: y,
+        head: [['User', 'Date', 'Sites', 'Description', 'Leave', 'Status']],
+        body: entryRows,
+        margin: { left: margin, right: margin },
+        styles: { fontSize: 7, cellPadding: 1.5, overflow: 'linebreak' },
+        headStyles: { fillColor: [45, 106, 79], textColor: 255, fontStyle: 'bold', fontSize: 7 },
+        columnStyles: {
+          0: { cellWidth: 28 },
+          1: { cellWidth: 22 },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 'auto' },
+          4: { cellWidth: 18 },
+          5: { cellWidth: 20 }
+        },
+        alternateRowStyles: { fillColor: [248, 248, 245] },
+        theme: 'grid'
+      });
+    }
+
+    // Footer on all pages
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let p = 1; p <= totalPages; p++) {
+      doc.setPage(p);
+      doc.setFontSize(7);
+      doc.setTextColor(150);
+      doc.text('IT Team Tracker — Daily Work Report', margin, pageH - 6);
+      doc.text('Page ' + p + ' of ' + totalPages, pageW - margin, pageH - 6, { align: 'right' });
+    }
+
+    const filename = 'Daily_Work_Report_' + dateFrom + '_to_' + dateTo + '.pdf';
+    doc.save(filename);
+    toast('Report downloaded: ' + filename);
+  } catch (e) {
+    console.error('Daily work report error:', e);
     toast('Failed to generate report: ' + e.message);
   }
 }

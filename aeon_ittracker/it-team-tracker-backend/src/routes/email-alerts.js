@@ -203,21 +203,9 @@ function buildEmailHtml(alert) {
 <!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"></head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f0; padding: 20px;">
-  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-    <div style="background: #2d6a4f; color: #ffffff; padding: 20px 24px;">
-      <h1 style="margin: 0; font-size: 20px;">IT Team Tracker</h1>
-    </div>
-    <div style="padding: 24px;">
-      <h2 style="color: #1a1a1a; margin: 0 0 16px 0; font-size: 18px;">${alert.subject}</h2>
-      <div style="color: #333; font-size: 15px; line-height: 1.6; white-space: pre-line;">${alert.body}</div>
-      <div style="margin-top: 24px;">
-        <a href="https://adg-it-tracker.zeabur.app/" style="display: inline-block; background: #2d6a4f; color: #ffffff; padding: 10px 24px; border-radius: 6px; text-decoration: none; font-weight: 600;">Open IT Tracker</a>
-      </div>
-    </div>
-    <div style="background: #f5f5f0; padding: 12px 24px; font-size: 12px; color: #999;">
-      This is an automated reminder from IT Team Tracker.
-    </div>
+<body style="font-family: Calibri, 'Segoe UI', Arial, sans-serif; background: #ffffff; padding: 0; margin: 0;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 30px 20px;">
+    <p style="color: #1a1a1a; font-size: 15px; line-height: 1.8; margin: 0;">${alert.body.replace(/\n/g, '<br>')}</p>
   </div>
 </body>
 </html>`;
@@ -226,25 +214,23 @@ function buildEmailHtml(alert) {
 // ==================== SCHEDULED EMAIL SENDER ====================
 async function checkAndSendScheduledAlerts() {
   try {
-    const now = new Date();
+    const hkStr = new Date().toLocaleString('en-US', { timeZone: 'Asia/Hong_Kong' });
+    const now = new Date(hkStr);
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const currentDay = days[now.getDay()];
     const currentTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
 
-    // Get enabled alerts for today
     const { rows: alerts } = await pool.query(
       'SELECT * FROM email_alerts WHERE enabled = true AND schedule_day = $1',
       [currentDay]
     );
 
     for (const alert of alerts) {
-      // Check if time matches (within 1 minute window)
       if (currentTime === alert.schedule_time) {
-        // Check if already sent today
         if (alert.last_sent) {
-          const lastSent = new Date(alert.last_sent);
+          const lastSentHK = new Date(new Date(alert.last_sent).toLocaleString('en-US', { timeZone: 'Asia/Hong_Kong' }));
           const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-          if (lastSent >= todayStart) {
+          if (lastSentHK >= todayStart) {
             console.log('Alert "' + alert.name + '" already sent today, skipping.');
             continue;
           }

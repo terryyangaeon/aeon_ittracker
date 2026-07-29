@@ -13,7 +13,7 @@ app.use(cors({
   origin: process.env.CORS_ORIGINS === '*'
     ? '*'
     : (process.env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean),
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json({ limit: '50mb' }));
@@ -38,6 +38,8 @@ app.use('/api/objectives', require('./routes/objectives'));
 app.use('/api/dashboard',  require('./routes/dashboard'));
 app.use('/api/backup',       require('./routes/backup'));
 app.use('/api/email-alerts', require('./routes/email-alerts'));
+app.use('/api/suggestions',  require('./routes/suggestions'));
+app.use('/api/skills',       require('./routes/skills'));
 
 app.get('/', (req, res) => {
   res.json({ service: 'IT Team Tracker API v2', status: 'running' });
