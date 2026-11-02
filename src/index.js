@@ -11,12 +11,35 @@ app.use(express.json({ limit: '1mb' }));
 
 async function autoMigrate() {
   const sql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
+  // Split on semicolons that end a statement (handles DO $$ blocks)
+  const statements = [];
+  let current = '';
+  let inDollarBlock = false;
+  for (const line of sql.split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('--') && !inDollarBlock) continue;
+    if (trimmed.includes('$$')) {
+      inDollarBlock = !inDollarBlock;
+    }
+    current += line + '\n';
+    if (!inDollarBlock && trimmed.endsWith(';')) {
+      const stmt = current.trim();
+      if (stmt && stmt !== ';') statements.push(stmt);
+      current = '';
+    }
+  }
+  if (current.trim()) statements.push(current.trim());
+
   const client = await pool.connect();
   try {
-    await client.query(sql);
+    for (const stmt of statements) {
+      try {
+        await client.query(stmt);
+      } catch (err) {
+        console.warn('Migration step skipped:', err.message);
+      }
+    }
     console.log('Database schema applied / verified.');
-  } catch (err) {
-    console.error('Auto-migration warning:', err.message);
   } finally {
     client.release();
   }
