@@ -2,68 +2,41 @@
 
 IT Team daily attendance log, weekly PPP (Progress/Plans/Problems) status reports, and revisable monthly objectives.
 
-## Architecture (v2 — Docker unified)
-
-Single Express service serves both the API and the frontend. No CORS needed.
+## Architecture
 
 ```
 aeon_ittracker/
-├── src/
-│   ├── index.js           # Express: API routes + static file server
-│   ├── db.js              # PostgreSQL connection pool
-│   ├── schema.sql         # Database schema + seed data
-│   └── routes/
-│       ├── records.js     # Daily attendance CRUD
-│       ├── objectives.js  # Monthly objectives CRUD
-│       └── weekly.js      # Weekly PPP CRUD
-├── public/
-│   └── index.html         # Single-page frontend app
-├── Dockerfile
-├── docker-compose.yml     # App + PostgreSQL for local dev / VPS
-├── package.json
+├── it-team-tracker-backend/   # Node.js/Express API + PostgreSQL
+│   ├── src/
+│   │   ├── index.js           # Express server, auto-migration
+│   │   ├── db.js              # PostgreSQL connection pool
+│   │   ├── schema.sql         # Database schema + seed data
+│   │   └── routes/
+│   │       ├── records.js     # Daily attendance CRUD
+│   │       ├── objectives.js  # Monthly objectives CRUD
+│   │       └── weekly.js      # Weekly PPP CRUD
+│   └── package.json
+├── it-team-tracker-web/       # Static file server for frontend
+│   ├── server.js              # Express static server
+│   ├── public/
+│   │   └── index.html         # Single-page frontend app
+│   └── package.json
 └── README.md
 ```
 
-### Legacy (archived)
-
-The `it-team-tracker-backend/` and `it-team-tracker-web/` directories contain the previous two-service architecture deployed on Zeabur.
-
-## Quick start with Docker
-
-```bash
-# Clone and run
-git clone https://github.com/terryyangaeon/aeon_ittracker.git
-cd aeon_ittracker
-docker compose up -d
-
-# Open http://localhost:3000
-```
-
-This starts two containers:
-- **app** — Node.js Express (port 3000)
-- **db** — PostgreSQL 16 (port 5432)
-
-The database schema auto-migrates on first startup.
-
-## Deploy to a VPS
-
-```bash
-# On your VPS
-git clone https://github.com/terryyangaeon/aeon_ittracker.git
-cd aeon_ittracker
-
-# Create .env from example
-cp .env.example .env
-# Edit .env if you want custom DB credentials
-
-docker compose up -d
-```
-
-To use an external PostgreSQL (e.g., managed database), set `DATABASE_URL` in `.env` and remove the `db` service from `docker-compose.yml`.
-
 ## Standalone HTML Version
 
-`IT-Team-Tracker-v4.html` is a single-file version that runs entirely in the browser with localStorage. Open it directly — no installation needed.
+`IT-Team-Tracker-v4.html` is a single-file web application that runs entirely in the browser with localStorage. Open it directly in any modern browser — no installation or build step required. To connect it to the backend API, paste the API URL into the sidebar.
+
+## Deployment (Zeabur)
+
+Both services are deployed on Zeabur (HKG region) under the **IT-Team-Tracker** project:
+
+| Service | URL |
+|---------|-----|
+| Backend API | https://adg-it-tracker-api.zeabur.app |
+| Frontend | https://adg-it-tracker.zeabur.app |
+| PostgreSQL | Managed by Zeabur (internal) |
 
 ## Database
 
@@ -73,23 +46,17 @@ PostgreSQL with 4 tables:
 - **weekly_ppp** — weekly Progress/Plans/Problems reports
 - **objectives** — monthly objectives per member
 
-Schema auto-migrates on startup via `schema.sql`.
+Schema auto-migrates on backend startup via `schema.sql`.
 
 ## Team Members
 
 Jimmy, James, Riot, Terry, Timothy (members) + Philip (reviewer)
 
-## Environment Variables
+## Environment Variables (Backend)
 
 | Variable | Description |
 |----------|-------------|
 | `DATABASE_URL` or `POSTGRES_CONNECTION_STRING` | PostgreSQL connection string |
+| `CORS_ORIGINS` | Allowed origins (`*` for all) |
 | `PORT` | Server port (default: 3000) |
 | `PGSSLMODE` | Set to `require` to enable SSL |
-
-## Current Deployment (Zeabur)
-
-| Service | URL |
-|---------|-----|
-| Frontend + API | https://adg-it-tracker.zeabur.app |
-| PostgreSQL | Managed by Zeabur (internal) |
