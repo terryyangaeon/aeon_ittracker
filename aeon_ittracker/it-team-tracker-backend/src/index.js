@@ -6,8 +6,12 @@ const path = require('path');
 const cron = require('node-cron');
 const pool = require('./db');
 
+const sso = require('./lib/sso');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.set('trust proxy', true);
 
 app.use(cors({
   origin: process.env.CORS_ORIGINS === '*'
@@ -51,6 +55,8 @@ app.get('/health', (req, res) => {
 
 async function start() {
   await autoMigrate();
+  await sso.init();
+  console.log('Microsoft sign-in ' + (sso.enabled() ? 'enabled' : 'not configured'));
 
   // Schedule email alert check every minute
   const { checkAndSendScheduledAlerts } = require('./routes/email-alerts');

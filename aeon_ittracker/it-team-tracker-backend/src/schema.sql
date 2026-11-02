@@ -57,6 +57,19 @@ CREATE INDEX IF NOT EXISTS idx_entries_type ON work_entries(event_type);
 -- Add blockage_status column if missing
 ALTER TABLE work_entries ADD COLUMN IF NOT EXISTS blockage_status TEXT NOT NULL DEFAULT 'New';
 
+-- Add account_type column for SSO support ('email' = PIN login, 'sso' = Microsoft Entra ID)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS account_type TEXT NOT NULL DEFAULT 'email';
+
+-- ============================================================
+-- SSO Tokens (OIDC state, popup hand-off codes)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS sso_tokens (
+  id         TEXT PRIMARY KEY,
+  kind       TEXT NOT NULL,
+  data       JSONB NOT NULL,
+  expires_at BIGINT NOT NULL
+);
+
 -- ============================================================
 -- Monthly Objectives
 -- ============================================================
@@ -102,8 +115,8 @@ INSERT INTO users (name, email, pin, role, admin) VALUES
   ('Riot Chan',     'riot.chan@aeondelightasia.com',      '1111', 'General',  false)
 ON CONFLICT (email) DO NOTHING;
 
--- Ensure Terry Yang is admin
-UPDATE users SET admin = true WHERE email = 'terry.yang@aeondelightasia.com';
+-- Ensure Terry Yang is admin + SSO
+UPDATE users SET admin = true, account_type = 'sso' WHERE email = 'terry.yang@aeondelightasia.com';
 
 -- ============================================================
 -- Seed System Configuration (skip if data exists)

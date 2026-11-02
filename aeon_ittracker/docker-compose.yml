@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ittracker
+      POSTGRES_USER: ittracker
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ittracker"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build: ./it-team-tracker-backend
+    image: adg-it-tracker-api:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3001:3000"
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgres://ittracker:${POSTGRES_PASSWORD:-changeme}@postgres:5432/ittracker
+      JWT_SECRET: ${JWT_SECRET:-please-change-this-secret}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      SSO_TENANT_ID: ${SSO_TENANT_ID:-}
+      SSO_CLIENT_ID: ${SSO_CLIENT_ID:-}
+      SSO_CLIENT_SECRET: ${SSO_CLIENT_SECRET:-}
+
+  web:
+    build: ./it-team-tracker-web
+    image: adg-it-tracker-web:latest
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+
+volumes:
+  pgdata:

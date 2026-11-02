@@ -44,15 +44,27 @@ button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; border: none; background: none; }
 
 /* Login */
-#login-view { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem; }
-.login-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem; width: 100%; max-width: 400px; box-shadow: var(--shadow); }
-.login-card h1 { font-size: 1.5rem; margin-bottom: .25rem; }
-.login-card p { color: var(--text-muted); margin-bottom: 1.5rem; font-size: .9rem; }
+#login-view { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem; position: relative; }
+#login-view::before { content: ""; position: fixed; inset: 0; z-index: 0; background: url("static/wallpaper-login.jpg") center center / cover no-repeat; opacity: 0.7; }
+#login-view > * { position: relative; z-index: 1; }
+.login-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,.18); }
+.login-card h1 { font-size: 1.5rem; margin-bottom: .25rem; color: #1a1a1a; }
+.login-card p { color: #666; margin-bottom: 1.5rem; font-size: .9rem; }
 .login-card .field { margin-bottom: 1rem; }
-.login-card label { display: block; font-weight: 600; font-size: .85rem; margin-bottom: .3rem; }
-.login-card input { width: 100%; padding: .6rem .75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); }
-.login-card input:focus { outline: 2px solid var(--primary); border-color: transparent; }
+.login-card label { display: block; font-weight: 600; font-size: .85rem; margin-bottom: .3rem; color: #1a1a1a; }
+.login-card input { width: 100%; padding: .6rem .75rem; border: 1px solid #d6d3d1; border-radius: var(--radius); background: #fff; color: #1a1a1a; }
+.login-card input:focus { outline: 2px solid #FFCC00; border-color: #FFCC00; }
 .login-error { color: var(--danger); font-size: .85rem; margin-bottom: .75rem; display: none; }
+.sso-btn { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 13px 16px; border: 0; border-radius: 10px;
+           background: #1e3a5f; color: #fff; font: inherit; font-weight: 700; font-size: 14.5px; line-height: 1.35; cursor: pointer; text-align: center; }
+.sso-btn:hover { background: #16304f; }
+.sso-btn:disabled { opacity: .7; cursor: default; }
+.pw-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; margin-top: 18px; padding: 6px; border: 0; background: none;
+             color: #78716c; font: inherit; font-size: 12.5px; cursor: pointer; }
+.pw-toggle:hover { color: #1a1a1a; text-decoration: underline; }
+.pw-toggle .chev { transition: transform .15s; }
+.pw-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.pw-section { border-top: 1px solid #e7e5e4; margin-top: 8px; padding-top: 4px; }
 
 /* Buttons */
 .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1rem; border-radius: var(--radius); font-weight: 600; font-size: .85rem; transition: opacity .15s; }
@@ -254,18 +266,33 @@ tr:hover td { background: var(--surface-alt); }
 <div id="login-view">
   <div class="login-card">
     <div style="text-align:center;margin-bottom:1rem"><img src="logo.png" alt="AEON Delight" style="height:80px;width:auto"></div>
-    <h1>IT Team Tracker</h1>
-    <p>Daily attendance, weekly PPP reports, and monthly objectives.</p>
-    <div id="login-error" class="login-error"></div>
-    <div class="field">
-      <label for="login-email">Email</label>
-      <input type="email" id="login-email" placeholder="name@aeondelightasia.com" autocomplete="email">
+    <h1 style="text-align:center">IT Team Tracker</h1>
+    <p style="text-align:center">Daily attendance, weekly PPP reports, and monthly objectives.</p>
+
+    <button type="button" class="sso-btn" id="ssoBtn" style="display:none">
+      <svg width="20" height="20" viewBox="0 0 21 21" aria-hidden="true"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+      <span>使用 永旺永樂(亞洲) 帳戶登入<br>Sign in with AEON Delight (Asia) Account</span>
+    </button>
+
+    <button type="button" class="pw-toggle" id="pwToggle" aria-expanded="false" aria-controls="pwSection" style="display:none">
+      使用電郵及 PIN 登入 · Sign in with email &amp; PIN
+      <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+
+    <div class="pw-section" id="pwSection" style="display:none">
+      <div id="login-error" class="login-error"></div>
+      <div class="field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="name@aeondelightasia.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="login-pin">PIN (4 digits)</label>
+        <input type="password" id="login-pin" maxlength="4" pattern="\d{4}" placeholder="----" inputmode="numeric" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()" style="margin-top:.5rem">Sign In</button>
     </div>
-    <div class="field">
-      <label for="login-pin">PIN (4 digits)</label>
-      <input type="password" id="login-pin" maxlength="4" pattern="\d{4}" placeholder="----" inputmode="numeric" autocomplete="current-password">
-    </div>
-    <button class="btn btn-primary btn-full" onclick="doLogin()" style="margin-top:.5rem">Sign In</button>
+
+    <div id="sso-error" style="color:#b91c1c;font-size:13px;min-height:18px;margin-top:12px;text-align:center"></div>
   </div>
 </div>
 
@@ -637,7 +664,7 @@ tr:hover td { background: var(--surface-alt); }
       <div class="card">
         <div class="tbl-wrap">
           <table>
-            <thead><tr><th>Name</th><th>Email</th><th>PIN</th><th>Role</th><th>Admin</th><th>Last Modified</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Name</th><th>Email</th><th>Type</th><th>PIN</th><th>Role</th><th>Admin</th><th>Last Modified</th><th>Actions</th></tr></thead>
             <tbody id="accounts-body"></tbody>
           </table>
         </div>
@@ -692,6 +719,100 @@ async function api(path, opts = {}) {
 }
 
 // ==================== AUTH ====================
+
+// SSO login initialization
+(async function initLoginOptions() {
+  try {
+    const res = await fetch(API + '/auth/options', { cache: 'no-store' });
+    const opts = await res.json();
+    if (opts.sso) {
+      document.getElementById('ssoBtn').style.display = 'flex';
+      if (opts.password) {
+        document.getElementById('pwToggle').style.display = 'flex';
+      } else {
+        // SSO only, no PIN form
+      }
+    } else {
+      // No SSO, show PIN form directly
+      showPinForm(false);
+    }
+  } catch (e) {
+    showPinForm(false);
+  }
+
+  // Handle SSO code redemption from URL
+  const params = new URLSearchParams(location.search);
+  if (params.get('sso_code')) {
+    try {
+      const data = await api('/auth/sso/redeem', {
+        method: 'POST',
+        body: JSON.stringify({ code: params.get('sso_code') })
+      });
+      token = data.token;
+      currentUser = data.user;
+      localStorage.setItem('token', token);
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      history.replaceState(null, '', location.pathname);
+      enterApp();
+      return;
+    } catch (e) {
+      document.getElementById('sso-error').textContent = e.message || 'Sign-in failed.';
+    }
+    history.replaceState(null, '', location.pathname);
+  }
+  if (params.get('sso_error')) {
+    document.getElementById('sso-error').textContent = decodeURIComponent(params.get('sso_error'));
+    history.replaceState(null, '', location.pathname);
+  }
+})();
+
+function showPinForm(focus) {
+  document.getElementById('pwSection').style.display = 'block';
+  const toggle = document.getElementById('pwToggle');
+  toggle.setAttribute('aria-expanded', 'true');
+  if (focus) document.getElementById('login-email').focus();
+}
+
+document.getElementById('ssoBtn').addEventListener('click', function() {
+  document.getElementById('sso-error').textContent = '';
+  const ssoUrl = API + '/auth/sso/start?next=';
+  // Check if in iframe — use popup
+  if (window.self !== window.top) {
+    const w = window.open(ssoUrl + '&popup=1', 'ittSso', 'width=520,height=680');
+    if (!w) { document.getElementById('sso-error').textContent = '請允許彈出視窗 · Please allow pop-ups and try again.'; return; }
+    document.getElementById('ssoBtn').disabled = true;
+    const t = setInterval(() => { if (w.closed) { clearInterval(t); document.getElementById('ssoBtn').disabled = false; } }, 500);
+  } else {
+    location.href = ssoUrl;
+  }
+});
+
+// Popup SSO callback handler
+window.addEventListener('message', function(e) {
+  if (!e.data || e.data.type !== 'itt-sso') return;
+  if (e.data.error) { document.getElementById('sso-error').textContent = e.data.error; return; }
+  fetch(API + '/auth/sso/redeem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: e.data.code }) })
+    .then(r => r.json().then(j => { if (!r.ok) throw new Error(j.error || 'Sign in failed.'); return j; }))
+    .then(data => {
+      token = data.token;
+      currentUser = data.user;
+      localStorage.setItem('token', token);
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      enterApp();
+    })
+    .catch(err => { document.getElementById('sso-error').textContent = err.message; });
+});
+
+document.getElementById('pwToggle').addEventListener('click', function() {
+  const section = document.getElementById('pwSection');
+  if (section.style.display === 'none') {
+    showPinForm(true);
+  } else {
+    section.style.display = 'none';
+    this.setAttribute('aria-expanded', 'false');
+  }
+});
+
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pin = document.getElementById('login-pin').value.trim();
@@ -726,6 +847,7 @@ function doSignOut() {
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-view').style.display = 'flex';
   document.getElementById('login-pin').value = '';
+  document.getElementById('sso-error').textContent = '';
 }
 
 document.getElementById('login-pin').addEventListener('keydown', e => {
@@ -1666,53 +1788,104 @@ async function restoreBackup(event) {
 }
 
 // ==================== ACCOUNT MANAGEMENT ====================
+let _ssoEnabled = false;
+(async function() {
+  try { const r = await fetch(API + '/auth/options', { cache: 'no-store' }); const o = await r.json(); _ssoEnabled = !!o.sso; } catch(e) {}
+})();
+
 async function loadAccounts() {
   loadBackupStatus();
   try {
     const data = await api('/auth/users');
     const body = document.getElementById('accounts-body');
-    body.innerHTML = data.users.map(u =>
-      '<tr>' +
-      '<td>' + esc(u.name) + '</td>' +
-      '<td>' + esc(u.email) + '</td>' +
-      '<td>' + esc(u.pin) + '</td>' +
-      '<td>' + esc(u.role) + '</td>' +
-      '<td>' + (u.admin ? '<span style="color:var(--success);font-weight:600">Yes</span>' : 'No') + '</td>' +
-      '<td>' + fmtDate(u.last_modified) + '</td>' +
-      '<td><button class="btn btn-outline btn-sm" onclick=\'showEditUser(' + JSON.stringify({id:u.id,name:u.name,email:u.email,pin:u.pin,role:u.role,admin:u.admin}) + ')\'>Edit</button></td>' +
-      '</tr>'
-    ).join('');
+    body.innerHTML = data.users.map(u => {
+      const typeBadge = (u.account_type === 'sso')
+        ? '<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:#e0e7ff;color:#1e3a5f">SSO</span>'
+        : '<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:#f5f5f4;color:#44403c">Email</span>';
+      return '<tr>' +
+        '<td>' + esc(u.name) + '</td>' +
+        '<td>' + esc(u.email) + '</td>' +
+        '<td>' + typeBadge + '</td>' +
+        '<td>' + (u.account_type === 'sso' ? '<span style="color:var(--text-muted)">—</span>' : esc(u.pin)) + '</td>' +
+        '<td>' + esc(u.role) + '</td>' +
+        '<td>' + (u.admin ? '<span style="color:var(--success);font-weight:600">Yes</span>' : 'No') + '</td>' +
+        '<td>' + fmtDate(u.last_modified) + '</td>' +
+        '<td><button class="btn btn-outline btn-sm" onclick=\'showEditUser(' + JSON.stringify({id:u.id,name:u.name,email:u.email,pin:u.pin,role:u.role,admin:u.admin,account_type:u.account_type||'email'}) + ')\'>Edit</button></td>' +
+        '</tr>';
+    }).join('');
   } catch (e) {
     console.error('Load accounts error:', e);
   }
 }
 
+function userTypeChangeHandler() {
+  const type = document.getElementById('user-type').value;
+  const pinField = document.getElementById('user-pin');
+  const pinLabel = document.getElementById('user-pin-label');
+  if (type === 'sso') {
+    pinField.disabled = true;
+    pinField.value = '';
+    pinField.placeholder = 'Not needed for SSO';
+    pinLabel.innerHTML = 'PIN <span style="color:var(--text-muted);font-weight:400">(not used for SSO accounts)</span>';
+  } else {
+    pinField.disabled = false;
+    pinField.placeholder = '1111';
+    pinLabel.innerHTML = 'PIN (4 digits)';
+  }
+}
+
 function showAddUser() {
+  const ssoDefault = _ssoEnabled ? 'sso' : 'email';
   showModal(
     '<h2>Add User</h2>' +
+    '<div class="field"><label>Account Type</label>' +
+    '<select id="user-type" onchange="userTypeChangeHandler()">' +
+    '<option value="sso"' + (ssoDefault === 'sso' ? ' selected' : '') + (!_ssoEnabled ? ' disabled' : '') + '>SSO - AEON Delight Email</option>' +
+    '<option value="email"' + (ssoDefault === 'email' ? ' selected' : '') + '>Email - Email and PIN</option></select></div>' +
     '<div class="field"><label>Name</label><input id="user-name" placeholder="Full name"></div>' +
     '<div class="field"><label>Email</label><input id="user-email" type="email" placeholder="name@aeondelightasia.com"></div>' +
-    '<div class="field"><label>PIN (4 digits)</label><input id="user-pin" maxlength="4" placeholder="1111" inputmode="numeric"></div>' +
+    '<div class="field"><label id="user-pin-label">PIN (4 digits)</label><input id="user-pin" maxlength="4" placeholder="1111" inputmode="numeric"></div>' +
     '<div class="field"><label>Role</label>' +
     '<select id="user-role"><option value="General">General</option><option value="Reviewer">Reviewer</option></select></div>' +
     '<div class="field"><label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="user-admin" style="width:auto"> Admin</label></div>' +
+    '<div id="user-dir-msg" style="color:#b91c1c;font-size:.85rem;margin-bottom:.5rem;display:none"></div>' +
     '<div class="actions">' +
     '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
-    '<button class="btn btn-primary" onclick="doAddUser()">Add</button></div>'
+    '<button class="btn btn-primary" id="user-save-btn" onclick="doAddUser()">Add</button></div>'
   );
+  userTypeChangeHandler();
 }
 
 async function doAddUser() {
   const name = document.getElementById('user-name').value.trim();
   const email = document.getElementById('user-email').value.trim();
+  const account_type = document.getElementById('user-type').value;
   const pin = document.getElementById('user-pin').value.trim() || '1111';
   const role = document.getElementById('user-role').value;
   const admin = document.getElementById('user-admin').checked;
+  const dirMsg = document.getElementById('user-dir-msg');
+  const saveBtn = document.getElementById('user-save-btn');
+  dirMsg.style.display = 'none';
   if (!name || !email) { toast('Name and email are required'); return; }
+
+  // Directory check for SSO accounts
+  if (account_type === 'sso' && _ssoEnabled) {
+    saveBtn.disabled = true; saveBtn.textContent = 'Checking directory…';
+    try {
+      await api('/auth/directory-check', { method: 'POST', body: JSON.stringify({ email }) });
+    } catch (e) {
+      saveBtn.disabled = false; saveBtn.textContent = 'Add';
+      dirMsg.textContent = e.message;
+      dirMsg.style.display = 'block';
+      return;
+    }
+    saveBtn.disabled = false; saveBtn.textContent = 'Add';
+  }
+
   try {
     await api('/auth/users', {
       method: 'POST',
-      body: JSON.stringify({ name, email, pin, role, admin })
+      body: JSON.stringify({ name, email, pin: account_type === 'sso' ? '0000' : pin, role, admin, account_type })
     });
     closeModal();
     toast('User created');
@@ -1724,32 +1897,60 @@ async function doAddUser() {
 }
 
 function showEditUser(u) {
+  const isSso = u.account_type === 'sso';
   showModal(
     '<h2>Edit User</h2>' +
+    '<div class="field"><label>Account Type</label>' +
+    '<select id="user-type" onchange="userTypeChangeHandler()">' +
+    '<option value="sso"' + (isSso ? ' selected' : '') + (!_ssoEnabled && !isSso ? ' disabled' : '') + '>SSO - AEON Delight Email</option>' +
+    '<option value="email"' + (!isSso ? ' selected' : '') + '>Email - Email and PIN</option></select></div>' +
     '<div class="field"><label>Name</label><input id="user-name" value="' + esc(u.name) + '"></div>' +
     '<div class="field"><label>Email</label><input id="user-email" type="email" value="' + esc(u.email) + '"></div>' +
-    '<div class="field"><label>PIN (4 digits)</label><input id="user-pin" maxlength="4" value="' + esc(u.pin) + '" inputmode="numeric"></div>' +
+    '<div class="field"><label id="user-pin-label">PIN (4 digits)</label><input id="user-pin" maxlength="4" value="' + (isSso ? '' : esc(u.pin)) + '" inputmode="numeric"></div>' +
     '<div class="field"><label>Role</label>' +
     '<select id="user-role"><option value="General">General</option><option value="Reviewer">Reviewer</option></select></div>' +
     '<div class="field"><label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="user-admin" style="width:auto" ' + (u.admin ? 'checked' : '') + '> Admin</label></div>' +
+    '<div id="user-dir-msg" style="color:#b91c1c;font-size:.85rem;margin-bottom:.5rem;display:none"></div>' +
     '<div class="actions">' +
     '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
-    '<button class="btn btn-primary" onclick="doEditUser(\'' + u.id + '\')">Save</button></div>'
+    '<button class="btn btn-primary" id="user-save-btn" onclick="doEditUser(\'' + u.id + '\',\'' + esc(u.account_type || 'email') + '\')">Save</button></div>'
   );
   document.getElementById('user-role').value = u.role;
+  userTypeChangeHandler();
 }
 
-async function doEditUser(id) {
+async function doEditUser(id, origType) {
   const name = document.getElementById('user-name').value.trim();
   const email = document.getElementById('user-email').value.trim();
+  const account_type = document.getElementById('user-type').value;
   const pin = document.getElementById('user-pin').value.trim();
   const role = document.getElementById('user-role').value;
   const admin = document.getElementById('user-admin').checked;
+  const dirMsg = document.getElementById('user-dir-msg');
+  const saveBtn = document.getElementById('user-save-btn');
+  dirMsg.style.display = 'none';
   if (!name || !email) { toast('Name and email are required'); return; }
+
+  // Directory check when switching to SSO
+  if (account_type === 'sso' && origType !== 'sso' && _ssoEnabled) {
+    saveBtn.disabled = true; saveBtn.textContent = 'Checking directory…';
+    try {
+      await api('/auth/directory-check', { method: 'POST', body: JSON.stringify({ email }) });
+    } catch (e) {
+      saveBtn.disabled = false; saveBtn.textContent = 'Save';
+      dirMsg.textContent = e.message;
+      dirMsg.style.display = 'block';
+      return;
+    }
+    saveBtn.disabled = false; saveBtn.textContent = 'Save';
+  }
+
   try {
+    const body = { name, email, role, admin, account_type };
+    if (account_type === 'email' && pin) body.pin = pin;
     await api('/auth/users/' + id, {
       method: 'PUT',
-      body: JSON.stringify({ name, email, pin, role, admin })
+      body: JSON.stringify(body)
     });
     closeModal();
     toast('User updated');
