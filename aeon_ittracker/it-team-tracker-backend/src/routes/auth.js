@@ -6,7 +6,7 @@ const sso = require('../lib/sso');
 
 const router = Router();
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://adg-it-tracker.zeabur.app';
+const FRONTEND_URL = process.env.FRONTEND_URL || '';
 const PASSWORD_LOGIN = process.env.PASSWORD_LOGIN !== '0' || !sso.enabled();
 
 function makeToken(user) {

@@ -45,13 +45,24 @@ app.use('/api/email-alerts', require('./routes/email-alerts'));
 app.use('/api/suggestions',  require('./routes/suggestions'));
 app.use('/api/skills',       require('./routes/skills'));
 
-app.get('/', (req, res) => {
-  res.json({ service: 'IT Team Tracker API v2', status: 'running' });
-});
-
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+// Serve frontend static files
+const publicDir = path.join(__dirname, '..', 'public');
+if (fs.existsSync(publicDir)) {
+  app.use(express.static(publicDir, {
+    maxAge: '1h',
+    setHeaders(res, filePath) {
+      if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
+    },
+  }));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(publicDir, 'index.html'));
+  });
+  console.log('Serving frontend from', publicDir);
+}
 
 async function start() {
   await autoMigrate();
